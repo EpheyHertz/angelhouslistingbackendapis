@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Booking Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .highlight {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>New Booking Request for Your House</h2>
+        <p>Dear House Owner,</p>
+        <p>You have received a new booking request for your property, <strong class="highlight">{{house_title}}</strong> from the user <strong class="highlight">{{username}}</strong>.</p>
+        <p>Please review the request and respond accordingly.</p>
+        <p>If you have any questions, feel free to contact us.</p>
+        <p class="footer">DocTech Team</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #0077cc;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .content p {
+            margin: 0 0 15px;
+            line-height: 1.6;
+        }
+
+        .content .highlight {
+            font-weight: bold;
+            color: #0077cc;
+        }
+
+        .footer {
+            background-color: #f1f1f1;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .footer a {
+            color: #0077cc;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Booking Confirmation</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear <span class="highlight">{{username}}</span>,</p>
+
+            <p>We are pleased to confirm your booking for the following property:</p>
+
+            <p><strong>Property:</strong> {{house_title}}</p>
+            <p><strong>Location:</strong> {{house_location}}</p>
+            <p><strong>Check-in:</strong> {{start_date}}</p>
+            <p><strong>Check-out:</strong> {{end_date}}</p>
+            <p><strong>Total Price:</strong> ${{total_price}}</p>
+
+            <p>The owner of the property has been notified of your booking. Please contact them directly for further details or assistance.</p>
+
+            <p>Thank you for booking with us. We hope you have a pleasant stay!</p>
+
+            <p>If you have any questions, feel free to <a href="mailto:support@doctech.com">contact us</a>.</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; {{year}} DocTech. All Rights Reserved.</p>
+            <p><a href="https://doctechcommunity.onrender.com">Visit our website</a></p>
+        </div>
+    </div>
+</body>
+
+</html>

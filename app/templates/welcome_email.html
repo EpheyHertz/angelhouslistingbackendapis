@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .content {
+            margin: 20px 0;
+            color: #333;
+        }
+        .content p {
+            margin: 15px 0;
+        }
+        .content .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 15px 0;
+        }
+        .content .button:hover {
+            background: #388e3c;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 30px;
+        }
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ subject }}</h1>
+        </div>
+        <div class="content">
+            <p>Hi <strong>{{ username }}</strong>,</p>
+            <p>Welcome to the <strong>House Listing Platform</strong>! We're thrilled to have you join our community of home enthusiasts.</p>
+            <p>Whether you're looking for your dream home or planning to list your own property, we're here to make the process seamless and enjoyable.</p>
+            <p>
+                <a href="http://localhost:3000" class="button">Explore Now</a>
+            </p>
+            <p>If you need assistance, feel free to reply to this email or visit our <a href="http://localhost:3000/contact" style="color: #4CAF50; text-decoration: none;">Support Center</a>.</p>
+            <p>We’re here to help!</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{ current_year }} House Listing Platform. All rights reserved.</p>
+            <p><a href="http://localhost:3000/contact">Contact Us</a> | <a href="http://localhost:3000/terms">Terms of Service</a></p>
+        </div>
+    </div>
+</body>
+</html>
