@@ -3,78 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Approved</title>
+    <title>Booking Confirmation | Angel Housing</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-blue: #2563eb;
+            --accent-emerald: #059669;
+            --deep-slate: #1e293b;
+            --neutral-light: #f8fafc;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: #f4f4f9;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
             margin: 0;
-            padding: 0;
-        }
-        .email-container {
-            max-width: 650px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            color: #0056b3;
-            font-size: 24px;
-        }
-        p {
-            font-size: 16px;
+            padding: 2rem;
             line-height: 1.6;
-            color: #333;
         }
-        .highlight {
-            color: #0056b3;
-            font-weight: bold;
+
+        .email-wrapper {
+            max-width: 680px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            overflow: hidden;
         }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #0056b3;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        .footer {
-            font-size: 12px;
-            color: #777;
+
+        .header-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            padding: 2.5rem;
             text-align: center;
-            margin-top: 40px;
+            position: relative;
         }
-        .footer a {
-            color: #0056b3;
+
+        .header-banner::after {
+            content: '';
+            background: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .confirmation-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: #dcfce7;
+            border-radius: 2rem;
+            margin: 1rem 0;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .detail-card {
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            background: var(--neutral-light);
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+            color: white !important;
             text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-section {
+            background: var(--neutral-light);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .email-wrapper {
+                border-radius: 0;
+                margin: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <h2>Booking Approval for Your Property</h2>
-        <p>Dear <strong class="highlight">{{username}}</strong>,</p>
-        <p>We are pleased to inform you that your booking for the property <strong class="highlight">{{house_title}}</strong> has been successfully approved by the house owner.</p>
-        <p>Your stay is now confirmed! We hope you have a wonderful experience. Here are the details of your booking:</p>
-        
-        <ul>
-            <li><strong>Property:</strong> {{house_title}}</li>
-            <li><strong>Status:</strong> Approved</li>
-            <li><strong>Check-in Date:</strong> {{start_date}}</li>
-            <li><strong>Check-out Date:</strong> {{end_date}}</li>
-            <li><strong>No of Rooms:</strong> {{rooms_no}}</li>
-        </ul>
-        
-        <p>If you have any questions or need assistance, feel free to contact our support team. We're here to help!</p>
-        
-        <a href="{{site_url}}" class="button">Visit Your Booking</a>
-        
-        <p class="footer">Thank you for using our platform. <br> The House Listing Team</p>
-        <p class="footer">If you no longer wish to receive emails from us, please <a href="{{unsubscribe_url}}">unsubscribe</a>.</p>
+    <div class="email-wrapper">
+        <div class="header-banner">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="white" style="margin-bottom: 1rem;">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            <h1 style="color: white; margin: 0; font-size: 1.875rem;">Booking Confirmed! 🎉</h1>
+            <div class="confirmation-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#059669" style="margin-right: 8px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Your Adventure Begins!
+            </div>
+        </div>
+
+        <div style="padding: 2.5rem;">
+            <p style="font-size: 1.125rem; color: var(--deep-slate); margin-bottom: 2rem;">
+                Dear <strong>{{username}}</strong>,<br>
+                Your stay at <strong>{{house_title}}</strong> is officially confirmed! 
+                The property owner is preparing everything for your perfect experience.
+            </p>
+
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                    </svg>
+                    <h3 style="margin: 0 0 0.5rem;">Dates</h3>
+                    <div style="color: #666;">
+                        <div>📅 Check-in: {{start_date}}</div>
+                        <div>📅 Check-out: {{end_date}}</div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 11V3H7v4H3v14h8v-4h2v4h8V11h-4zM7 19H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm4 4H9v-2h2v2zm0-4H9V9h2v2zm0-4H9V5h2v2zm4 8h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm4 12h-2v-2h2v2zm0-4h-2v-2h2v2z"/>
+                    </svg>
+                    <h3 style="margin: 0 0 0.5rem;">Property Details</h3>
+                    <div style="color: #666;">
+                        <div>🏠 {{house_title}}</div>
+                        <div>🚪 {{rooms_no}} rooms</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="{{site_url}}" class="cta-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="margin-right: 8px;">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                    View Booking Details
+                </a>
+            </div>
+
+            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 1rem; margin: 2rem 0;">
+                <h3 style="margin: 0 0 1rem; color: var(--deep-slate);">Next Steps:</h3>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
+                    <li style="margin-bottom: 0.5rem;">📩 Save this confirmation</li>
+                    <li style="margin-bottom: 0.5rem;">📞 Contact host for check-in details</li>
+                    <li>📑 Review house rules before arrival</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <div style="margin: 1rem 0;">
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/facebook.png" width="24" alt="Facebook"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/color/48/twitter--v1.png" width="24" alt="Twitter"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/instagram-new.png" width="24" alt="Instagram"></a>
+            </div>
+            <p>© {{year}} Angel Housing - Creating Memorable Stays</p>
+            <p style="margin: 0.5rem 0;">
+                <a href="{{unsubscribe_url}}" style="color: var(--primary-blue);">Unsubscribe</a> | 
+                <a href="#" style="color: var(--primary-blue);">Privacy Policy</a>
+            </p>
+        </div>
     </div>
 </body>
 </html>

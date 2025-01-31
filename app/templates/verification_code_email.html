@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Header Styles */
+    .header {
+      background-color: #2A5C8A;
+      padding: 28px 20px;
+      text-align: center;
+      border-radius: 10px 10px 0 0;
+      color: #ffffff;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Content Styles */
+    .content {
+      margin: 30px 0;
+      padding: 0 20px;
+      font-size: 16px;
+    }
+
+    .content p {
+      margin: 18px 0;
+    }
+
+    /* Verification Elements */
+    .verification-section {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .verification-code {
+      background-color: #f8f9fa;
+      color: #2A5C8A;
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      display: inline-block;
+      border: 2px dashed #2A5C8A;
+      margin: 15px 0;
+    }
+
+    .verification-link {
+      display: inline-block;
+      background-color: #2A5C8A;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 35px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 20px 0;
+      transition: all 0.3s ease;
+      border: 2px solid #2A5C8A;
+      position: relative;
+    }
+
+    .verification-link:hover {
+      background-color: #1E4566;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(42, 92, 138, 0.2);
+    }
+
+    .verification-link::after {
+      content: '→';
+      margin-left: 10px;
+      font-weight: 700;
+      transition: margin 0.2s ease;
+    }
+
+    .verification-link:hover::after {
+      margin-left: 15px;
+    }
+
+    /* Footer Styles */
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #666666;
+      border-top: 1px solid #eeeeee;
+      padding-top: 25px;
+    }
+
+    .footer p {
+      margin: 12px 0;
+    }
+
+    .footer a {
+      color: #2A5C8A;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 640px) {
+      .container {
+        margin: 10px;
+        padding: 20px;
+      }
+      
+      .header {
+        padding: 20px 15px;
+      }
+      
+      .content {
+        padding: 0 10px;
+      }
+      
+      .verification-code {
+        font-size: 18px;
+        padding: 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Account Verification Required</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <p>Hello {{username}},</p>
+      <p>Thank you for registering with Angel Real Estate. To activate your account, please use either the verification code or click the secure link below:</p>
+
+      <div class="verification-section">
+        <!-- Verification Code -->
+        <p>Your verification code:</p>
+        <div class="verification-code">{{verification_code}}</div>
+
+        <!-- Verification Link -->
+        <p>Or click the button below to verify instantly:</p>
+        <a href="{{verification_link}}" class="verification-link">Verify My Account</a>
+      </div>
+
+      <p>This verification link will expire in 24 hours. If you didn't create this account, please ignore this email or contact our support team immediately.</p>
+
+      <p>Need help? Visit our <a href="[Help Center URL]">Help Center</a> or reply to this email.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Angel Real Estate &bull; 123 Secure Lane, Suite 456 &bull; Safetyville, ST 78900</p>
+      <p><a href="[Privacy Policy URL]">Privacy Policy</a> &bull; <a href="[Terms of Service URL]">Terms of Service</a></p>
+      <p>&copy; 2025 Angel Real Estate. All rights reserved.</p>
+      <p>This is an automated message - please do not reply directly</p>
+    </div>
+  </div>
+</body>
+</html>

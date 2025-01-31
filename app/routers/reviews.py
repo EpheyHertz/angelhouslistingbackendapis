@@ -7,13 +7,14 @@ from app.services import oauth
 
 router = APIRouter(tags=["Reviews Api Routes"])
 
-@router.post("/reviews/", response_model=schemas.ReviewResponse)
+@router.post("/reviews/", status_code=status.HTTP_201_CREATED)
 def create_review(
     review: schemas.ReviewCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth.get_current_user)
 ):
     # Check if house exists
+    
     house = db.query(models.House).filter(models.House.id == review.house_id).first()
     if not house:
         raise HTTPException(status_code=404, detail="House not found")
@@ -36,7 +37,6 @@ def create_review(
     db.commit()
     db.refresh(new_review)
     return new_review
-
 @router.get("/houses/{house_id}/reviews", response_model=List[schemas.ReviewResponse])
 def get_house_reviews(house_id: int, db: Session = Depends(get_db)):
     # Check if house exists
@@ -44,8 +44,42 @@ def get_house_reviews(house_id: int, db: Session = Depends(get_db)):
     if not house:
         raise HTTPException(status_code=404, detail="House not found")
 
-    reviews = db.query(models.Review).filter(models.Review.house_id == house_id).all()
-    return reviews
+    # Query the reviews along with user data
+    reviews = (
+        db.query(
+            models.Review,
+            models.User.id.label("user_id"),
+            models.User.username.label("username"),
+            models.User.profile_image.label("profile_image"),
+        )
+        .join(models.User, models.User.id == models.Review.user_id)
+        .filter(models.Review.house_id == house_id)
+        .all()
+    )
+
+    # Format the response to include user data in the reviews
+    formatted_reviews = [
+        {
+            "id": review.Review.id,
+            "user": {
+                "id": review.user_id,
+                "username": review.username,
+                "profile_image": review.profile_image or "/default_profile_image.png",  # Fallback profile image
+            },
+            "owner_id": review.user_id,
+            "content": review.Review.comment,
+            "rating": review.Review.rating,
+            "house_id": review.Review.house_id,
+            "created_at": review.Review.created_at,
+            "updated_at": review.Review.updated_at or review.Review.created_at,
+        }
+        for review in reviews
+    ]
+
+    return formatted_reviews
+
+
+
 
 @router.put("/reviews/{review_id}", response_model=schemas.ReviewResponse)
 def update_review(

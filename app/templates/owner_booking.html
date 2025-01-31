@@ -3,44 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Booking Request</title>
+    <title>New Booking Alert! 🎉</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: #f7f7f7;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f8f9fa;
         }
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .email-wrapper {
+            max-width: 640px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
         }
-        h2 {
-            color: #333;
+        .header {
+            background: linear-gradient(135deg, #2d3436 0%, #0984e3 100%);
+            padding: 32px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: 0.3px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .alert-badge {
+            background: #e3f2fd;
+            color: #0984e3;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+        .detail-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .detail-icon {
+            width: 24px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #0984e3;
+            color: white!important;
+            padding: 12px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 24px;
         }
         .footer {
             text-align: center;
-            font-size: 12px;
-            color: #777;
-        }
-        .highlight {
-            color: #0056b3;
+            padding: 24px;
+            background: #f8f9fa;
+            color: #636e72;
+            font-size: 14px;
+            border-radius: 0 0 12px 12px;
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <h2>New Booking Request for Your House</h2>
-        <p>Dear House Owner,</p>
-        <p>You have received a new booking request for your property, <strong class="highlight">{{house_title}}</strong> from the user <strong class="highlight">{{username}}</strong>.</p>
-        <p>Please review the request and respond accordingly.</p>
-        <p>If you have any questions, feel free to contact us.</p>
-        <p class="footer">DocTech Team</p>
+    <div class="email-wrapper">
+        <div class="header">
+            <h1>New Booking Request for {{house_title}}! 🏡</h1>
+        </div>
+        
+        <div class="content">
+            <div class="alert-badge">ACTION REQUIRED</div>
+            
+            <p>Dear Property Owner,</p>
+            <p>We're excited to inform you that <strong>{{username}}</strong> has requested to book your property. Here are the details:</p>
+            
+            <div class="detail-card">
+                <div class="detail-item">
+                    <img class="detail-icon" src="https://img.icons8.com/color/48/calendar--v1.png" alt="Dates">
+                    <span><strong>Dates:</strong> {{start_date}} → {{end_date}}</span>
+                </div>
+                <div class="detail-item">
+                    <img class="detail-icon" src="https://img.icons8.com/color/48/price-tag.png" alt="Type">
+                    <span><strong>Booking Type:</strong> {{booking_type | capitalize}}</span>
+                </div>
+                <div class="detail-item">
+                    <img class="detail-icon" src="https://img.icons8.com/color/48/money-bag.png" alt="Currency">
+                    <span><strong>Currency:</strong> {{currency}}</span>
+                </div>
+            </div>
+
+            <p>We recommend reviewing the request within 24 hours to ensure best guest experience.</p>
+            
+            <a href="" class="cta-button">Review Booking Request</a>
+
+            <p style="margin-top: 32px;">Best regards,<br>
+            <strong>The Angel Housing Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p>Need assistance?<br>
+            📞 +254 700086852 | ✉️ <a href="mailto:support@angelhousing.com">support@angelhousing.com</a></p>
+            <p style="margin-top: 16px; color: #95a5a6;">© 2025 Angel Housing Platform. All rights reserved.<br>
+            Ensuring seamless property management</p>
+        </div>
     </div>
 </body>
 </html>

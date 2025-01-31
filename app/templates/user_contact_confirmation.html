@@ -1,0 +1,84 @@
+<!-- templates/user_confirmation.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation: Message Received</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f8fafc; padding: 2rem; font-family: 'Inter', sans-serif; }
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            padding: 3rem;
+            text-align: center;
+            color: white;
+        }
+        .content { padding: 2.5rem; color: #1e293b; }
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+        .details-box {
+            background: #f1f5f9;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1 style="font-size: 1.875rem; margin-top: 1rem;">Thank You, {{name}}!</h1>
+            <p style="margin-top: 1rem; opacity: 0.9;">We're on it</p>
+        </div>
+
+        <div class="content">
+            <p style="font-size: 1.125rem; margin-bottom: 1.5rem;">
+                We've received your message regarding <strong>{{main_subject}}</strong> and our team is already reviewing it.
+            </p>
+
+            <div class="details-box">
+                <p style="margin-bottom: 1rem;"><span class="badge">Case Reference</span></p>
+                <p style="margin-bottom: 1.5rem;">{{message}} #{{random_number}}</p>
+                
+                <p style="margin-bottom: 1rem; color: #64748b;">
+                    What's next?<br>
+                    Our support team will review your inquiry and respond within 24 hours.
+                </p>
+            </div>
+
+            <p style="color: #64748b;">
+                Need immediate assistance?<br>
+                Reach us directly at <a href="mailto:{{support_email}}" style="color: #3b82f6; text-decoration: none;">{{support_email}}</a>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Angel Housing Plartform. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">Main Street, Embu City</p>
+        </div>
+    </div>
+</body>
+</html>

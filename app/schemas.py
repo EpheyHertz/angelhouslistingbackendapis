@@ -6,6 +6,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from app.models import UserRole, VerificationStatus, SocialAuthProvider, HouseType
 from fastapi import File, UploadFile
+from typing import Literal
 
 class UserBase(BaseModel):
     username: str
@@ -79,9 +80,11 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-
+class VerificationCodeVerification(BaseModel):
+    code: str
+    
 class ReviewBase(BaseModel):
-    rating: Annotated[int, Field(strict=True, ge=1, le=5)]
+    rating: Annotated[int, Field(strict=True, ge=1, le=6)]
     comment: str
     house_id: int
 
@@ -95,15 +98,27 @@ class ReviewUpdate(BaseModel):
     comment: Optional[str] = None
 
 
-class ReviewResponse(ReviewBase):
+class ReviewUserResponse(BaseModel):
     id: int
-    user_id: int
-    created_at: datetime
-    updated_at: Optional[datetime]
+    username: str
+    profile_image: Optional[str] = None
 
     class Config:
         from_attributes = True
 
+
+class ReviewResponse(BaseModel):
+    id: int
+    user: ReviewUserResponse
+    owner_id: int
+    content: str
+    rating: int
+    house_id: int
+    created_at: datetime
+    updated_at: Optional[datetime]= None
+
+    class Config:
+        from_attributes = True
 
 class LikeBase(BaseModel):
     house_id: int
@@ -163,8 +178,7 @@ class HouseResponse(HouseBase):
     availability: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    reviews: Optional[List[ReviewResponse]] = []  # Updated to handle a list of reviews
-    likes: Optional[List[LikeResponse]] = []  # Updated to handle a list of likes
+ 
 
     @field_validator('created_at', mode="before")
     def parse_created_at(cls, value):
@@ -263,6 +277,9 @@ class SearchParams(BaseModel):
 
 class EmailSchema(BaseModel):
     email:EmailStr
+    class Config:
+        from_attributes = True
+    
     
 
 
@@ -286,21 +303,37 @@ class UserUpdate(BaseModel):
 
 class BookingBase(BaseModel):
     house_id: int
-    rooms_no:int
+    room_count:int
     start_date: datetime
     end_date: datetime
+    special_request:Optional[str] = None
+    guest_count:int
+    
+    
+
+class BookingAppeal(BaseModel):
+    bookingId:int 
+    house_id:int
+    name: str
+    email: str
+    message:str
 
 class BookingCreate(BookingBase):
-    pass
+    booking_type: Literal["daily", "monthly"]
+
+class BookingOwner(BaseModel):
+    id: int
+    username: str
+    email: str
+    full_name: str
 
 class BookingResponse(BookingBase):
     id: int
     user_id: int
     total_price: float
     status: str
-    created_at: datetime
-    updated_at: Optional[datetime]
     house:HouseResponse
+    user:BookingOwner
 
     class Config:
         from_attributes = True
@@ -344,3 +377,21 @@ class CartSearchResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SendCodeRequest(BaseModel):
+    phone_number: str
+
+class ValidateCodeRequest(BaseModel):
+    code: str
+    token: str
+
+class CodeResponse(BaseModel):
+    message: str
+    success: bool
+
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Cancellation Notification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .email-wrapper {
+            max-width: 680px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+        .header {
+            background: linear-gradient(rgba(0, 44, 95, 0.8), rgba(0, 44, 95, 0.8)),
+                        url('https://images.unsplash.com/photo-1556740734-9f9ca6f6a98b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        .content {
+            padding: 40px;
+        }
+        .cancellation-alert {
+            background: #fff0f0;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+        .detail-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .detail-icon {
+            width: 24px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .primary-button {
+            background: #dc3545;
+            color: white!important;
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .secondary-button {
+            background: #0056b3;
+            color: white!important;
+            padding: 14px 36px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .footer {
+            text-align: center;
+            padding: 32px;
+            background: #002c5f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="header">
+            <h1 style="margin:0;font-size:26px;">Booking Cancellation Notification</h1>
+            <p style="opacity:0.9;margin-top:8px;">Reference: #{{booking_id}}</p>
+        </div>
+
+        <div class="content">
+            <div class="cancellation-alert">
+                <h3 style="margin:0;color:#dc3545;">Your Booking Has Been Cancelled</h3>
+                <p style="margin:8px 0 0 0;">We regret to inform you that the host has cancelled your booking.</p>
+            </div>
+
+            <p>Dear <strong>{{username}}</strong>,</p>
+            <p>We understand how disappointing this news may be, and we sincerely apologize for any inconvenience caused. Unfortunately, the host of <strong>{{house_title}}</strong> has cancelled your booking for the following dates:</p>
+
+            <div class="detail-card">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <img src="https://img.icons8.com/color/48/home--v1.png" class="detail-icon" alt="Property">
+                        <div>
+                            <strong>Property:</strong><br>
+                            {{house_title}}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <img src="https://img.icons8.com/color/48/calendar--v1.png" class="detail-icon" alt="Dates">
+                        <div>
+                            <strong>Dates:</strong><br>
+                            {{start_date}} – {{end_date}}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <img src="https://img.icons8.com/color/48/door.png" class="detail-icon" alt="Rooms">
+                        <div>
+                            <strong>Rooms:</strong><br>
+                            {{rooms_no}} rooms
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <img src="https://img.icons8.com/color/48/refund.png" class="detail-icon" alt="Status">
+                        <div>
+                            <strong>Status:</strong><br>
+                            <span style="color:#dc3545;">Cancelled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 style="margin-bottom:15px;">What You Can Do Next:</h4>
+            <div class="action-buttons">
+                <a href="{{feedback_url}}" class="primary-button">Share Your Feedback</a>
+                <a href="{{support_url}}" class="secondary-button">Contact Support</a>
+            </div>
+
+            <p style="color:#666;margin-top:20px;">If you believe this cancellation was made in error or have any concerns, please don’t hesitate to reach out to us. We’re here to help!</p>
+            <p style="color:#666;">You can also explore other available properties on our platform to find a suitable alternative for your stay.</p>
+
+            <p>Thank you for your understanding, and we appreciate your continued trust in Angel House Listing.</p>
+            <p>Warm regards,<br><strong>The Angel House Listing Team</strong></p>
+        </div>
+
+        <div class="footer">
+            <p style="margin:0;font-size:14px;">Angel House Listing Support Team</p>
+            <p style="margin:8px 0;font-size:12px;opacity:0.9;">
+                📞 +1 (800) 123-4567 | ✉️ support@angellisting.com<br>
+                <a href="{{unsubscribe_url}}" style="color:#fff;opacity:0.8;text-decoration:none;">Unsubscribe</a> 
+                | 
+                <a href="{{privacy_url}}" style="color:#fff;opacity:0.8;text-decoration:none;">Privacy Policy</a>
+            </p>
+            <p style="margin:0;font-size:12px;opacity:0.7;">© 2024 Angel House Listing. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -10,6 +10,8 @@ import logging
 from datetime import datetime, timedelta
 from app.config import SECRET_KEY
 from typing  import Optional
+
+from app import models
 env = Environment(loader=FileSystemLoader('app/templates'))
 
 def send_email(to_email: str, subject: str, template_name: str, **template_vars):
@@ -122,6 +124,20 @@ def send_verification_email(email: str,username:str):
     )
 
 logger = logging.getLogger(__name__)
+
+def send_verification_code(email,verification_code,username, template_name: Optional[str]='verification_code_email.html'):
+       username_caps = username.upper()
+       send_email(
+              to_email=email,
+              username=username_caps,
+              template_name=template_name,
+              subject="Verification Code",
+              verification_code=verification_code,
+
+       )
+       
+
+
 
 def send_password_reset_email(email: str, token: str):
     """
@@ -265,4 +281,51 @@ def send_house_reject_email(to_email:str,subject:str,template_name: str, **templ
                subject=subject,
                template_name=template_name,
                **template_vars)
-                        
+
+def send_appeal_confirmation_email_to_booking_owner(to_email:str,subject:str,template_name:str,**template_vars):
+            send_email(to_email=to_email,
+               subject=subject,
+               template_name=template_name,
+               **template_vars)                      
+def send_appeal_confirmation_email_to_booking_house_owner(to_email:str,subject:str,template_name:str,**template_vars):
+            send_email(to_email=to_email,
+               subject=subject,
+               template_name=template_name,
+               **template_vars)                    
+
+
+async def send_house_notification_email(admin_emails, owner_email, owner_username, **template_vars):
+    print(template_vars)
+    """
+    Sends an email with house details to the owner and all admins.
+    
+    :param house_details: Dictionary containing house information
+    :param admin_emails: List of admin emails
+    :param owner_email: Email address of the house owner
+    :param owner_username: Username of the house owner
+    :param template_vars: Additional variables to pass to the email template
+    """
+    try:
+        # Convert house details to a dictionary if it's a m
+
+        # Send email to owner
+        send_email(
+            to_email=owner_email,
+            subject="Your House Listing",
+            username=owner_username,
+            template_name="owner_house_creation.html",
+          
+            **template_vars
+        )
+
+        # Send email to admins
+        admin_email_list = [admin for admin in admin_emails]
+        send_email(
+            to_email=", ".join(admin_email_list),  # Convert list to a string
+            subject="New House Listing Added",
+            template_name="admin_house_creation.html",
+            **template_vars
+        )
+
+    except Exception as e:
+        print(f"Error sending house notification emails: {str(e)}")

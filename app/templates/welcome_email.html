@@ -5,87 +5,189 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ subject }}</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-blue: #2563eb;
+            --deep-slate: #1e293b;
+            --soft-gray: #f8fafc;
+            --accent-emerald: #059669;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 2rem;
             line-height: 1.6;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
         }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        .email-wrapper {
+            max-width: 680px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            overflow: hidden;
         }
-        .header {
+
+        .header-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            padding: 2.5rem;
             text-align: center;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
-            color: white;
-            padding: 20px 0;
-            border-radius: 10px 10px 0 0;
+            position: relative;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
+
+        .header-banner::after {
+            content: '';
+            background: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .header-title {
+            color: white;
             font-weight: 600;
+            font-size: 1.875rem;
+            margin: 0;
+            position: relative;
+            z-index: 1;
         }
-        .content {
-            margin: 20px 0;
-            color: #333;
+
+        .content-section {
+            padding: 2.5rem;
+            color: var(--deep-slate);
         }
-        .content p {
-            margin: 15px 0;
+
+        .greeting {
+            font-size: 1.25rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
         }
-        .content .button {
-            display: inline-block;
-            padding: 12px 20px;
-            background: #4CAF50;
-            color: white;
+
+        .welcome-message {
+            font-size: 1.1rem;
+            color: #334155;
+            margin: 2rem 0;
+            line-height: 1.7;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+            color: white !important;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 1rem;
+            border-radius: 0.75rem;
             font-weight: 500;
-            margin: 15px 0;
+            transition: transform 0.2s ease;
+            margin: 1.5rem 0;
         }
-        .content .button:hover {
-            background: #388e3c;
+
+        .cta-button:hover {
+            transform: translateY(-2px);
         }
-        .footer {
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--soft-gray);
+            border-radius: 1rem;
             text-align: center;
-            font-size: 0.9em;
-            color: #777;
-            margin-top: 30px;
         }
-        .footer a {
-            color: #4CAF50;
-            text-decoration: none;
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
         }
-        .footer a:hover {
-            text-decoration: underline;
+
+        .footer-section {
+            background: var(--soft-gray);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 640px) {
+            .email-wrapper {
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            .header-banner {
+                padding: 1.5rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>{{ subject }}</h1>
+    <div class="email-wrapper">
+        <div class="header-banner">
+            <h1 class="header-title">Welcome Home, {{ username | capfirst }}! 🏡</h1>
         </div>
-        <div class="content">
-            <p>Hi <strong>{{ username }}</strong>,</p>
-            <p>Welcome to the <strong>House Listing Platform</strong>! We're thrilled to have you join our community of home enthusiasts.</p>
-            <p>Whether you're looking for your dream home or planning to list your own property, we're here to make the process seamless and enjoyable.</p>
-            <p>
-                <a href="http://localhost:3000" class="button">Explore Now</a>
+
+        <div class="content-section">
+            <h2 class="greeting">Let's Find Your Perfect Space</h2>
+            
+            <div class="welcome-message">
+                <p>We're thrilled to welcome you to <strong>HouseListing Pro</strong>, where exceptional properties meet discerning buyers. Whether you're searching for your dream home or showcasing a premium listing, we're here to elevate your real estate experience.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <svg class="feature-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                        </svg>
+                        <h3>Smart Search</h3>
+                        <p>Find properties that match your exact needs</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <svg class="feature-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 14c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2z"/><path d="M11.42 21.814a.998.998 0 001.16 0C12.884 21.599 20.029 16.44 20 10c0-4.411-3.589-8-8-8S4 5.589 4 9.995c-.029 6.445 7.116 11.604 7.42 11.819zM12 4c3.309 0 6 2.691 6 6.005.021 4.438-4.388 8.423-6 9.73-1.611-1.308-6.021-5.294-6-9.735 0-3.309 2.691-6 6-6z"/>
+                        </svg>
+                        <h3>Premium Listings</h3>
+                        <p>Showcase your property in the best light</p>
+                    </div>
+                </div>
+
+                <a href="http://localhost:3000" class="cta-button">
+                    Start Your Journey →
+                </a>
+
+                <p>Our support team is always ready to assist at <a href="mailto:{{ support_email }}" style="color: var(--primary-blue); text-decoration: underline;">{{ support_email }}</a>.</p>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <div style="margin: 1rem 0;">
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/facebook.png" width="24" alt="Facebook"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/color/48/twitter--v1.png" width="24" alt="Twitter"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/instagram-new.png" width="24" alt="Instagram"></a>
+            </div>
+            <p>© {{ current_year }} HouseListing Pro – Where Dreams Find Addresses</p>
+            <p><a href="http://localhost:3000/contact" style="color: var(--primary-blue);">Contact</a> | <a href="http://localhost:3000/terms" style="color: var(--primary-blue);">Terms</a> | <a href="http://localhost:3000/privacy" style="color: var(--primary-blue);">Privacy</a></p>
+            <p style="margin-top: 1rem; font-size: 0.75rem; color: #94a3b8;">
+                This message was sent to {{ email }}. Manage your preferences in your account settings.
             </p>
-            <p>If you need assistance, feel free to reply to this email or visit our <a href="http://localhost:3000/contact" style="color: #4CAF50; text-decoration: none;">Support Center</a>.</p>
-            <p>We’re here to help!</p>
-        </div>
-        <div class="footer">
-            <p>&copy; {{ current_year }} House Listing Platform. All rights reserved.</p>
-            <p><a href="http://localhost:3000/contact">Contact Us</a> | <a href="http://localhost:3000/terms">Terms of Service</a></p>
         </div>
     </div>
 </body>

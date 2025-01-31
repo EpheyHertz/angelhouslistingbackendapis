@@ -3,51 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Request Submitted</title>
+    <title>🌿 Your Adventure Awaits! Booking Confirmation</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: #f7f7f7;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: #2d3436;
+            background-color: #f8f9fa;
             margin: 0;
             padding: 0;
         }
         .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 640px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
         }
-        h2 {
-            color: #333;
+        .header {
+            background: linear-gradient(135deg, #2d3436 0%, #0984e3 100%);
+            padding: 32px;
+            text-align: center;
+        }
+        h1 {
+            color: white;
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 0.5px;
+        }
+        .content {
+            padding: 40px;
+        }
+        .highlight {
+            color: #0984e3;
+            font-weight: 600;
+        }
+        .details-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .detail-item img {
+            width: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
         }
         .footer {
             text-align: center;
-            font-size: 12px;
-            color: #777;
+            padding: 24px;
+            background: #f8f9fa;
+            color: #636e72;
+            font-size: 14px;
         }
-        .highlight {
-            color: #0056b3;
+        .signature {
+            margin: 24px 0;
+            border-top: 1px solid #eee;
+            padding-top: 24px;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
-        <h2>Your Booking Request has been Submitted</h2>
-        <p>Dear <strong class="highlight">{{username}}</strong>,</p>
-        <p>Your booking request for the house <strong class="highlight">{{house_title}}</strong> has been successfully submitted.</p>
-        <p><strong>Booking Details:</strong></p>
-        <ul>
-            <li><strong>Start Date:</strong> {{start_date}}</li>
-            <li><strong>End Date:</strong> {{end_date}}</li>
-            <li><strong>Room No:</strong> {{room_no}}</li>
-            <li><strong>Total Price:</strong> ${{total_price}}</li>
-        </ul>
-        <p>You will be notified once the house owner responds to your booking request.</p>
-        <p>If you have any questions, please feel free to contact us.</p>
-        <p class="footer">DocTech Team</p>
+        <div class="header">
+            <h1>🌺 Booking Confirmed! Let the Journey Begin</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear <span class="highlight">{{username}}</span>,</p>
+            
+            <p>We're thrilled to confirm your booking request for <span class="highlight">{{house_title}}</span>! 🎉</p>
+            
+            <div class="details-card">
+                <div class="detail-item">
+                    <img src="https://img.icons8.com/fluency/48/calendar--v1.png" alt="Calendar">
+                    <span>{{start_date}} → {{end_date}}</span>
+                </div>
+                <div class="detail-item">
+                    <img src="https://img.icons8.com/color/48/door.png" alt="Room">
+                    <span>{{room_no}} Rooms Selected</span>
+                </div>
+                <div class="detail-item">
+                    <img src="https://img.icons8.com/color/48/price-tag.png" alt="Price">
+                    <span>Total: {{currency}}{{total_price}}</span>
+                </div>
+                <div class="detail-item">
+                    <img src="https://img.icons8.com/color/48/booking.png" alt="Type">
+                    <span>{{booking_type | capitalize}} Booking</span>
+                </div>
+            </div>
+
+            <p>⏳ Your host has been notified and will respond within 24 hours. We recommend:</p>
+            <ul>
+                <li>Keeping your payment method updated</li>
+                <li>Reviewing house guidelines</li>
+                <li>Preparing your travel checklist</li>
+            </ul>
+
+            <div class="signature">
+                <p>Warm regards,<br>
+                <strong>The Angel Housing Team</strong></p>
+                <p>✉️ <a href="mailto:support@doctech.com">support@angelhousing.com</a> | 📞 +254 700086852</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Follow your journey: 
+                [Social Icons Placeholder]</p>
+            <p>© 2025 Angel Housing. All rights reserved.<br>
+            Ensuring your perfect stay since 2020</p>
+        </div>
     </div>
 </body>
 </html>

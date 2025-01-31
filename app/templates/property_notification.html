@@ -3,87 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Listing Notification</title>
+    <title>Property Listing Confirmation | Angel HouseListing</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-blue: #2563eb;
+            --deep-slate: #1e293b;
+            --soft-gray: #f8fafc;
+            --accent-emerald: #059669;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
             margin: 0;
-            padding: 0;
+            padding: 2rem;
+            line-height: 1.6;
         }
-        .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+
+        .email-wrapper {
+            max-width: 680px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            overflow: hidden;
         }
-        .header {
+
+        .header-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            padding: 2.5rem;
             text-align: center;
-            background-color: #0073e6;
+            position: relative;
+        }
+
+        .header-banner::after {
+            content: '';
+            background: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .header-title {
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px 8px 0 0;
-        }
-        .header h1 {
+            font-weight: 600;
+            font-size: 1.875rem;
             margin: 0;
-            font-size: 24px;
+            position: relative;
+            z-index: 1;
         }
-        .content {
-            padding: 20px;
+
+        .content-section {
+            padding: 2.5rem;
+            color: var(--deep-slate);
         }
-        .content h2 {
-            color: #333;
+
+        .greeting {
+            font-size: 1.25rem;
+            color: var(--primary-blue);
+            margin-bottom: 1.5rem;
         }
-        .content p {
-            font-size: 16px;
-            color: #555;
-            line-height: 1.5;
+
+        .property-card {
+            background: var(--soft-gray);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #e2e8f0;
         }
-        .content .property-details {
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #f1f1f1;
-            border-radius: 6px;
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.75rem;
         }
-        .content .property-details p {
-            margin: 5px 0;
+
+        .detail-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            color: var(--primary-blue);
         }
-        .footer {
-            text-align: center;
-            font-size: 14px;
-            color: #999;
-            margin-top: 20px;
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            background: #dcfce7;
+            color: var(--accent-emerald);
+            font-weight: 500;
         }
-        .footer a {
-            color: #0073e6;
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-blue), #1d4ed8);
+            color: white !important;
             text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+            margin: 1.5rem 0;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-section {
+            background: var(--soft-gray);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .social-links {
+            margin: 1rem 0;
+        }
+
+        .social-icon {
+            width: 20px;
+            height: 20px;
+            margin: 0 0.5rem;
+            color: var(--deep-slate);
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <div class="header">
-            <h1>Your Property Listing Is Created</h1>
+    <div class="email-wrapper">
+        <div class="header-banner">
+            <h1 class="header-title">Listing Successfully Published 🎉</h1>
         </div>
-        <div class="content">
-            <h2>Dear {{ username }},</h2>
-            <p>We are delighted to inform you that your property listing has been successfully created on our platform. Below are the details of your listing:</p>
-            <div class="property-details">
-                <p><strong>Property Title:</strong> {{ house_title }}</p>
-                <p><strong>Location:</strong> {{ location }}</p>
-                <p><strong>Listed On:</strong> {{ listing_date }}</p>
-                <p><strong>Status:</strong> {{ listing_status }}</p>
+
+        <div class="content-section">
+            <h2 class="greeting">Dear {{ username | capfirst }},</h2>
+            <p>Your property is now live and visible to thousands of potential buyers. Welcome to HouseLux Premium Listings!</p>
+
+            <div class="property-card">
+                <div class="detail-row">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                    </svg>
+                    <div>
+                        <strong>Location:</strong><br>
+                        {{ location }}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 14c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2z"/><path d="M11.42 21.814a.998.998 0 001.16 0C12.884 21.599 20.029 16.44 20 10c0-4.411-3.589-8-8-8S4 5.589 4 9.995c-.029 6.445 7.116 11.604 7.42 11.819zM12 4c3.309 0 6 2.691 6 6.005.021 4.438-4.388 8.423-6 9.73-1.611-1.308-6.021-5.294-6-9.735 0-3.309 2.691-6 6-6z"/>
+                    </svg>
+                    <div>
+                        <strong>Property Title:</strong><br>
+                        {{ house_title }}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/>
+                    </svg>
+                    <div>
+                        <strong>Listed On:</strong><br>
+                        {{ listing_date }}
+                    </div>
+                </div>
+
+                <div class="status-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    {{ listing_status }}
+                </div>
             </div>
-            <p>To manage your property or make updates, please visit your <a href="{{ dashboard_link }}" target="_blank">dashboard</a>.</p>
-            <p>If you have any questions or need assistance, feel free to contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
-            <p>Thank you for choosing our platform to showcase your property!</p>
-            <p>Best regards,<br><strong>House Listing Team</strong></p>
+
+            <a href="{{ dashboard_link }}" class="cta-button">
+                Manage Your Listing →
+            </a>
+
+            <p>Need assistance? Our support team is ready to help at <a href="mailto:{{ support_email }}" style="color: var(--primary-blue); text-decoration: underline;">{{ support_email }}</a>.</p>
         </div>
-        <div class="footer">
-            <p>&copy;2024, House Listing Platform. All rights reserved.</p>
-            <p><a href="http://localhost:3000">Visit our website</a></p>
+
+        <div class="footer-section">
+            <div class="social-links">
+                <a href="#"><img src="https://img.icons8.com/fluency/48/facebook.png" class="social-icon" alt="Facebook"></a>
+                <a href="#"><img src="https://img.icons8.com/color/48/twitter--v1.png" class="social-icon" alt="Twitter"></a>
+                <a href="#"><img src="https://img.icons8.com/fluency/48/instagram-new.png" class="social-icon" alt="Instagram"></a>
+            </div>
+            <p>© 2025 Angel HouseListing – Transforming Property Listings</p>
+            <p><a href="http://localhost:3000" style="color: var(--primary-blue); text-decoration: none;">Visit Platform ↗</a></p>
+            <p style="margin-top: 1rem; font-size: 0.75rem; color: #94a3b8;">
+                This is an automated message – please do not reply directly
+            </p>
         </div>
     </div>
 </body>

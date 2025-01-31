@@ -2,54 +2,124 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Email Verification</title>
+    <title>Verify Your Email - House Listing Platform</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
         }
-        .container {
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            padding: 20px;
-            margin-top: 20px;
+        .email-wrapper {
+            max-width: 640px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
         }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+        .header {
+            background: linear-gradient(135deg, #0056b3 0%, #002c5f 100%);
+            padding: 40px;
+            text-align: center;
             color: white;
+        }
+        .content {
+            padding: 40px;
+        }
+        .verification-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 32px 0;
+            text-align: center;
+        }
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #28a745;
+            color: white!important;
+            padding: 16px 40px;
+            border-radius: 8px;
             text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin: 24px 0;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .link-box {
+            background: #fff;
+            border: 2px dashed #dee2e6;
+            padding: 16px;
+            word-break: break-all;
+            margin: 20px 0;
+            font-family: monospace;
+            color: #2d3436;
+        }
+        .security-note {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6c757d;
+            margin: 20px 0;
         }
         .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #666;
+            text-align: center;
+            padding: 32px;
+            background: #002c5f;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Hi, {{username }}</h1>
-        <h2>Welcome to House Listing Platform!</h2>
-        <p>Thank you for registering with us. To complete your registration and verify your email address, please click the button below:</p>
-        
-        <a href="{{ verification_url }}" class="button">Verify Email Address</a>
-        
-        <p>If the button doesn't work, you can also copy and paste this link into your browser:</p>
-        <p>{{ verification_url }}</p>
-        
-        <p>This verification link will expire in 24 hours.</p>
-        
+    <div class="email-wrapper">
+        <div class="header">
+            <h1 style="margin:0;font-size:28px;">🔑 Welcome to House Listing Platform!</h1>
+            <p style="opacity:0.9;margin-top:8px;">One last step to complete your registration</p>
+        </div>
+
+        <div class="content">
+            <h2 style="margin:0 0 16px 0;">Hi, {{username}}!</h2>
+            <p style="font-size:16px;color:#666;">Thank you for joining our community of trusted property owners and seekers. Let's verify your email to get started:</p>
+
+            <div class="verification-card">
+                <img src="https://img.icons8.com/color/96/verified-account.png" alt="Verification" style="width:64px;margin-bottom:16px;">
+                <h3 style="margin:0 0 16px 0;">Email Verification Required</h3>
+                
+                <a href="{{ verification_url }}" class="cta-button">
+                    <img src="https://img.icons8.com/color/24/approval.png" alt="Verify" style="width:20px;">
+                    Verify Email Now
+                </a>
+
+                <div class="security-note">
+                    <img src="https://img.icons8.com/color/24/security-configuration.png" alt="Security" style="width:20px;">
+                    <span>Secure verification process - expires in 24 hours</span>
+                </div>
+            </div>
+
+            <p style="color:#666;">Can't click the button? Copy this link:</p>
+            <div class="link-box">
+                {{ verification_url }}
+            </div>
+
+            <p style="color:#666;font-size:14px;">⚠️ If you didn't request this account, please <a href="mailto:epheynyaga@gmail.com" style="color:#0056b3;">contact our security team</a> immediately.</p>
+        </div>
+
         <div class="footer">
-            <p>If you didn't create an account with House Listing Platform, you can safely ignore this email.</p>
-            <p>© 2024 House Listing Platform. All rights reserved.</p>
+            <p style="margin:0;font-size:14px;"> Angel House Listing Platform Team</p>
+            <p style="margin:8px 0;font-size:12px;opacity:0.9;">
+                📍 123 Property Lane, Suite 456<br>
+                📞 +254 700086852 | ✉️ <a href="mailto:support@houselisting.com" style="color:#fff;opacity:0.8;text-decoration:none;">support@angelhousing.com</a>
+            </p>
+            <div style="margin-top:16px;">
+                <a href="{{privacy_url}}" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Privacy Policy</a> 
+                | 
+                <a href="{{unsubscribe_url}}" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Unsubscribe</a>
+            </div>
+            <p style="margin:16px 0 0 0;font-size:12px;opacity:0.7;">© 2025  Angel House Listing Platform. All rights reserved.</p>
         </div>
     </div>
 </body>

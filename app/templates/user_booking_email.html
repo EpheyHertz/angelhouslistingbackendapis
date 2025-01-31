@@ -1,102 +1,197 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation</title>
+    <title>Booking Confirmation | Angel Housing</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        :root {
+            --primary-blue: #2563eb;
+            --deep-slate: #1e293b;
+            --soft-gray: #f8fafc;
+            --accent-emerald: #059669;
         }
 
-        .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+            color: var(--deep-slate);
+        }
+
+        .email-wrapper {
+            max-width: 680px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
             overflow: hidden;
         }
 
-        .header {
-            background-color: #0077cc;
+        .header-banner {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-banner::after {
+            content: '';
+            background: url('https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover;
+            opacity: 0.1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .header-title {
             color: white;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .header h1 {
+            font-weight: 600;
+            font-size: 1.875rem;
             margin: 0;
-            font-size: 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .content {
-            padding: 20px;
+        .confirmation-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: #dcfce7;
+            border-radius: 2rem;
+            margin: 1.5rem 0;
         }
 
-        .content p {
-            margin: 0 0 15px;
-            line-height: 1.6;
+        .content-section {
+            padding: 2.5rem;
         }
 
-        .content .highlight {
-            font-weight: bold;
-            color: #0077cc;
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
         }
 
-        .footer {
-            background-color: #f1f1f1;
+        .detail-card {
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            background: var(--soft-gray);
+        }
+
+        .detail-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+        }
+
+        .price-display {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-emerald);
+            margin: 1.5rem 0;
+        }
+
+        .footer-section {
+            background: var(--soft-gray);
+            padding: 2rem;
             text-align: center;
-            padding: 15px;
-            font-size: 14px;
-            color: #777;
+            font-size: 0.875rem;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
         }
 
-        .footer a {
-            color: #0077cc;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
+        @media (max-width: 640px) {
+            .email-wrapper {
+                border-radius: 0;
+                margin: 0;
+            }
+            
+            .header-banner {
+                padding: 1.5rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="email-container">
-        <div class="header">
-            <h1>Booking Confirmation</h1>
+    <div class="email-wrapper">
+        <div class="header-banner">
+            <h1 class="header-title">Booking Confirmed! 🎉</h1>
+            <div class="confirmation-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#059669" style="margin-right: 8px;">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                Reservation ID: #{{booking_id}}
+            </div>
         </div>
 
-        <div class="content">
-            <p>Dear <span class="highlight">{{username}}</span>,</p>
+        <div class="content-section">
+            <p>Dear <strong>{{username}}</strong>,</p>
+            <p>Your stay at <strong>{{house_title}}</strong> is officially confirmed! Here's everything you need to know:</p>
 
-            <p>We are pleased to confirm your booking for the following property:</p>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+                    </svg>
+                    <h3>Location</h3>
+                    <p>{{house_location}}</p>
+                </div>
 
-            <p><strong>Property:</strong> {{house_title}}</p>
-            <p><strong>Location:</strong> {{house_location}}</p>
-            <p><strong>Check-in:</strong> {{start_date}}</p>
-            <p><strong>Check-out:</strong> {{end_date}}</p>
-            <p><strong>Total Price:</strong> ${{total_price}}</p>
+                <div class="detail-card">
+                    <svg class="detail-icon" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                    </svg>
+                    <h3>Dates</h3>
+                    <p>{{start_date}} – {{end_date}}</p>
+                </div>
+            </div>
 
-            <p>The owner of the property has been notified of your booking. Please contact them directly for further details or assistance.</p>
+            <div class="price-display">
+                Total: ${{total_price}}
+            </div>
 
-            <p>Thank you for booking with us. We hope you have a pleasant stay!</p>
+            <p>The property owner has been notified and will contact you with check-in details. We recommend:</p>
+            <ul style="margin: 1.5rem 0; padding-left: 1.5rem;">
+                <li style="margin-bottom: 0.5rem;">📩 Saving this confirmation</li>
+                <li style="margin-bottom: 0.5rem;">📞 Confirming arrival time with the host</li>
+                <li>📑 Reviewing house rules in your account</li>
+            </ul>
 
-            <p>If you have any questions, feel free to <a href="mailto:support@doctech.com">contact us</a>.</p>
+            <p>Need assistance? Our team is available 24/7 at 
+                <a href="mailto:support@angelhousing.com" style="color: var(--primary-blue); text-decoration: underline;">
+                    support@angelhousing.com
+                </a>
+            </p>
         </div>
 
-        <div class="footer">
-            <p>&copy; {{year}} DocTech. All Rights Reserved.</p>
-            <p><a href="https://doctechcommunity.onrender.com">Visit our website</a></p>
+        <div class="footer-section">
+            <div style="margin: 1rem 0;">
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/facebook.png" width="24" alt="Facebook"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/color/48/twitter--v1.png" width="24" alt="Twitter"></a>
+                <a href="#" style="margin: 0 0.5rem;"><img src="https://img.icons8.com/fluency/48/instagram-new.png" width="24" alt="Instagram"></a>
+            </div>
+            <p>© {{year}} Angel Housing – Your Trusted Stay Experience</p>
+            <p><a href="http://localhost:3000" style="color: var(--primary-blue);">Visit Platform</a> | 
+               <a href="http://localhost:3000/contact" style="color: var(--primary-blue);">Contact</a> | 
+               <a href="http://localhost:3000/terms" style="color: var(--primary-blue);">Terms</a></p>
+            <p style="margin-top: 1rem; font-size: 0.75rem; color: #94a3b8;">
+                This confirmation was sent to {{email}}. Manage notifications in your account settings.
+            </p>
         </div>
     </div>
 </body>
-
 </html>

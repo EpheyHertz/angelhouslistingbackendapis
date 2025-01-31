@@ -1,0 +1,103 @@
+<!-- templates/support_notification.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Request: {{main_subject}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f8fafc; padding: 2rem; font-family: 'Inter', sans-serif; }
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .header {
+            background: linear-gradient(135deg, {% if priority == 'High' %}#ef4444{% else %}#3b82f6{% endif %}, {% if priority == 'High' %}#dc2626{% else %}#2563eb{% endif %});
+            padding: 2rem;
+            color: white;
+        }
+        .priority-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255,255,255,0.15);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .content { padding: 2rem; color: #1e293b; }
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .detail-card {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+        .message-box {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1 style="font-size: 1.5rem;">New Contact Request</h1>
+                <span class="priority-tag">{{priority}} Priority</span>
+            </div>
+            <p style="margin-top: 0.5rem; opacity: 0.9;">{{subject}}</p>
+        </div>
+
+        <div class="content">
+            <div class="user-details">
+                <div class="detail-card">
+                    <p style="font-size: 0.875rem; color: #64748b;">From</p>
+                    <p style="margin-top: 0.5rem; font-weight: 500;">{{user_name}}</p>
+                </div>
+                <div class="detail-card">
+                    <p style="font-size: 0.875rem; color: #64748b;">Main Contact:</p>
+                    <p style="margin-top: 0.5rem;">
+                        <a href="mailto:{{user_email}}" style="color: #3b82f6; text-decoration: none;">{{user_main_email}}</a>
+                    </p>
+                </div>
+                <div class="detail-card">
+                    <p style="font-size: 0.875rem; color: #64748b;">Contact</p>
+                    <p style="margin-top: 0.5rem;">
+                        <a href="mailto:{{user_email}}" style="color: #3b82f6; text-decoration: none;">{{user_email}}</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="message-box">
+                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem;">Message Content</p>
+                <p style="white-space: pre-wrap; line-height: 1.6;">{{message}}</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="mailto:{{user_email}}?subject=Re: {{subject}}" style="
+                    display: inline-block;
+                    padding: 0.75rem 2rem;
+                    background: #3b82f6;
+                    color: white;
+                    border-radius: 0.5rem;
+                    text-decoration: none;
+                    transition: opacity 0.2s;
+                ">
+                    Respond to {{user_name}}
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

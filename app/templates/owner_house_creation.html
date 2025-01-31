@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listing Submission Confirmation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f5f5f5; padding: 20px; }
+        .email-container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            font-family: 'Poppins', sans-serif;
+        }
+        .header {
+            background: linear-gradient(135deg, #2ECC71, #27ae60);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+        .content { padding: 35px; color: #444; }
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+        }
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        .detail-icon { width: 30px; color: #27ae60; margin-right: 15px; }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .grid-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .amenities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .amenity-pill {
+            background: #e8f5e9;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .footer {
+            text-align: center;
+            padding: 25px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <i class="fas fa-check-circle fa-3x"></i>
+            <h1 style="margin-top: 15px;">Listing Received!</h1>
+        </div>
+
+        <div class="content">
+            <p>Hello {{username}},</p>
+            <div class="status-box">
+                <h3 style="margin-bottom: 20px;">🏡 {{title}}</h3>
+                
+                <div class="detail-row">
+                    <i class="fas fa-hashtag detail-icon"></i>
+                    <div>
+                        <strong>Listing ID:</strong> #{{id}}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <i class="fas fa-dollar-sign detail-icon"></i>
+                    <div>
+                        <strong>Monthly Price:</strong> {{currency}} {{price}}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <i class="fas fa-map-marker-alt detail-icon"></i>
+                    <div>
+                        <strong>Location:</strong> {{location}}
+                    </div>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="grid-item">
+                        <i class="fas fa-home fa-lg"></i>
+                        <p style="margin-top: 8px;"><strong>{{type}}</strong></p>
+                    </div>
+                    <div class="grid-item">
+                        <i class="fas fa-door-open fa-lg"></i>
+                        <p style="margin-top: 8px;"><strong>{{room_count}} Rooms</strong></p>
+                    </div>
+                </div>
+
+                <h4 style="margin: 20px 0 10px;">Amenities</h4>
+                <div class="amenities-list">
+                    {% for amenity in amenities %}
+                    <span class="amenity-pill">{{amenity}}</span>
+                    {% endfor %}
+                </div>
+
+                <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
+                    Submitted on: {{created_at}}
+                </p>
+            </div>
+
+            <p style="margin-top: 20px; line-height: 1.6;">
+                Our team is reviewing your submission. You'll receive another email once your listing is approved and published. This process typically takes 24-48 hours.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Angel HouseListing. All rights reserved.</p>
+            <p style="margin-top: 8px;">Need assistance? Contact us at support@angelhousing.com</p>
+        </div>
+    </div>
+</body>
+</html>

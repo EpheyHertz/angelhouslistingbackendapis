@@ -271,11 +271,13 @@ async def auth_google(
         if platform:
              redirect_url = mobile_config.get_mobile_redirect_url(platform, access_token, refresh_token, "bearer")
              logger.info(f"Redirecting to mobile app: {platform}")
+             return {'access_token':access_token,'refresh_token':refresh_token}
         else:             
             redirect_url = f"{FRONTEND_URL}/auth/oauth?access_token={access_token}&refresh_token={refresh_token}&token_type=bearer"
             logger.info("Redirecting to web frontend")
 
-        return RedirectResponse(url=redirect_url)
+        
+            return RedirectResponse(url=redirect_url)
     except Exception as e:
         logger.error(f"Google OAuth Error: {e}")
         raise HTTPException(status_code=500, detail="Authentication failed")
