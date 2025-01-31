@@ -77,8 +77,8 @@ router = APIRouter(prefix="/auth",tags=["Google Auth"])
 #     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
 #     client_kwargs={"scope": "openid email profile"},
 # )
-GOOGLE_REDIRECT_URI = "http://localhost:8000/auth/callback/google"
-FRONTEND_URL = "http://localhost:3000"  # Update this to match your frontend URL
+GOOGLE_REDIRECT_URI = "https://angelhouslistingbackendapis.onrender.com/auth/callback/google"
+FRONTEND_URL = "https://angelhouslistingwebsite.vercel.app/"  # Update this to match your frontend URL
 
 
 # @router.get("/google")
