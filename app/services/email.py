@@ -155,7 +155,7 @@ def send_password_reset_email(email: str, token: str):
         base_url = os.getenv("BASE_URL", "https://angelhouslistingwebsite.vercel.app/")  # Default to localhost for dev
         
         # Include both the token and email in the reset URL
-        reset_url = f"{base_url}/auth/password-reset?token={token}&email={email}"
+        reset_url = f"{base_url}auth/password-reset?token={token}&email={email}"
 
         # Send the email
         send_email(
