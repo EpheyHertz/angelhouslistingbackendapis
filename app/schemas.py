@@ -338,8 +338,8 @@ class BookingResponse(BookingBase):
     class Config:
         from_attributes = True
 class AppealRequest(BaseModel):
-    bookingId: str
-    house_id: str
+    bookingId: int
+    house_id: int
     name: str
     email: EmailStr
     message: str
