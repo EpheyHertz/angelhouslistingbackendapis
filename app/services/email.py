@@ -112,7 +112,7 @@ def send_verification_email(email: str,username:str):
     """
     # Create verification token
     token = create_verification_token(email)
-    verification_url = f"https://angelhouslistingwebsite.vercel.app/verify-email?token={token}&email={email}"
+    verification_url = f"https://angelhouslistingwebsite.vercel.app/auth/verify-email?token={token}&email={email}"
     username_caps = username.upper()
 
     send_email(
