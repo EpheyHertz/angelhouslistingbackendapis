@@ -337,7 +337,12 @@ class BookingResponse(BookingBase):
 
     class Config:
         from_attributes = True
-
+class AppealRequest(BaseModel):
+    bookingId: str
+    house_id: str
+    name: str
+    email: EmailStr
+    message: str
 
 
 class CartBase(BaseModel):

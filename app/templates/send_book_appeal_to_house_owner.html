@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 30px; font-family: Arial, sans-serif; }
+        .alert-banner { background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 25px; }
+        .important { color: #dc3545; font-weight: bold; }
+        .details-box { border: 2px solid #3498db; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer-links { margin-top: 30px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="alert-banner">
+            <h2 style="color: #dc3545; margin: 0;">ACTION REQUIRED: New Appeal Received ⚠️</h2>
+        </div>
+
+        <h3 style="color: #2c3e50;">Hello {{ owner_name }},</h3>
+        
+        <div class="details-box">
+            <p><span class="important">Tenant:</span> {{ tenant_name }}</p>
+            <p><span class="important">Listing:</span> {{ house_title }}</p>
+            <p><span class="important">Booking ID:</span> #{{ booking_id }}</p>
+            
+            <div style="margin: 15px 0; padding: 10px; background: #f8f9fa;">
+                <strong>Tenant's Message:</strong>
+                <p><em>"{{ message }}"</em></p>
+            </div>
+        </div>
+
+        <h3 style="color: #2c3e50;">Required Actions:</h3>
+        <ol>
+            <li>Review appeal details within 72 hours</li>
+            <li>Contact tenant through our secure portal</li>
+            <li>Update appeal status in your dashboard</li>
+        </ol>
+
+        <div class="footer-links">
+            <p>🔒 Need conflict resolution guidance? 
+                <a href="{{ terms_url }}">Review our Terms</a> or 
+                <a href="{{ privacy_url }}">Privacy Policy</a>
+            </p>
+            <p>Visit your <a href="{{ website_url }}/dashboard">Host Dashboard</a> →</p>
+            <p style="margin-top: 15px;">The Angel Housing Team 🤝</p>
+        </div>
+    </div>
+</body>
+</html>

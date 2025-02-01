@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 30px; font-family: Arial, sans-serif; }
+        .header { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        .content { margin: 25px 0; line-height: 1.6; }
+        .highlight { color: #3498db; font-weight: bold; }
+        .footer { margin-top: 30px; font-size: 0.9em; color: #7f8c8d; }
+        a { color: #3498db; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Your Voice Matters, {{ name }}! 🌟</h2>
+        </div>
+        
+        <div class="content">
+            <p>We've received your appeal for <span class="highlight">{{ house_title }}</span> (Booking #{{ booking_id }}). Our team is already on the case!</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                <em>"{{ message }}"</em>
+            </div>
+
+            <h3 style="color: #2c3e50; margin-top: 25px;">What's Next?</h3>
+            <ul>
+                <li>🕒 48-hour response guarantee</li>
+                <li>📬 Updates sent directly to this email</li>
+                <li>🔍 Full audit trail of all communications</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Need immediate assistance? <a href="mailto:support@angelhousing.com">Reply directly to this email</a></p>
+            <p>Explore more dream homes → <a href="{{ website_url }}">Angel Housing Marketplace</a></p>
+            <p style="margin-top: 20px;">
+                <a href="{{ terms_url }}">Terms of Service</a> | 
+                <a href="{{ privacy_url }}">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

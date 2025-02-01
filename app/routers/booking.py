@@ -10,7 +10,8 @@ import logging
 from app.schemas import BookingCreate, CartAdd, BookingResponse, CartResponse,CartSearchResponse
 from ..services.email import send_email,send_booking_email_to_owner,send_booking_email_to_booker,send_booking_approved_email,send_booking_cancellation_email  # Custom utility to send emails
 from ..services.oauth import get_current_user,get_current_admin
-
+from sqlalchemy.exc import SQLAlchemyError
+from typing import Dict, Any
 
 router = APIRouter(prefix="/houses", tags=["Houses"])
 
@@ -647,3 +648,89 @@ def approve_booking(
 
     return booking
 
+WEBSITE_URL = "https://angelhouslistingwebsite.vercel.app"
+TERMS_URL = f"{WEBSITE_URL}/terms"
+PRIVACY_URL = f"{WEBSITE_URL}/privacy&policy"
+
+@router.post("/submit-appeal")
+async def submit_appeal(
+    data: schemas.AppealRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    try:
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        if current_user.email != data.email:
+            raise HTTPException(status_code=400, detail="Email mismatch")
+
+        if not data.message.strip():
+            raise HTTPException(status_code=400, detail="Empty message")
+
+        # Database operations
+        try:
+            booking = db.query(models.Booking).filter(models.Booking.id == data.bookingId).first()
+            house = db.query(models.House).filter(models.House.id == data.house_id).first()
+            house_owner = db.query(models.User).filter(models.User.id == house.owner_id).first()
+        except SQLAlchemyError as e:
+            logger.error(f"Database error: {str(e)}")
+            raise HTTPException(status_code=500, detail="Database operation failed")
+
+        if not booking:
+            raise HTTPException(status_code=400, detail="Booking not found")
+        if not house:
+            raise HTTPException(status_code=400, detail="House not found")
+
+        # Email sending with error handling
+        email_success = True
+        try:
+            # Email to Booking Owner
+            send_email(
+                to_email=data.email,
+                subject='Your Appeal Has Been Received 🏠✨',
+                template_name='send_book_appeal_to_booking_owner.html',
+                template_vars={
+                    "name": data.name,
+                    "message": data.message,
+                    "house_title": house.title,
+                    "booking_id": booking.id,
+                    "website_url": WEBSITE_URL,
+                    "terms_url": TERMS_URL,
+                    "privacy_url": PRIVACY_URL
+                }
+            )
+        except Exception as e:
+            logger.error(f"Failed to send confirmation email: {str(e)}")
+            email_success = False
+
+        try:
+            # Email to House Owner
+            send_email(
+                to_email=house_owner.email,
+                subject='New Appeal Alert for Your Listing 🚨',
+                template_name='send_book_appeal_to_house_owner.html',
+                template_vars={
+                    "owner_name": house_owner.first_name,
+                    "tenant_name": data.name,
+                    "message": data.message,
+                    "house_title": house.title,
+                    "booking_id": booking.id,
+                    "website_url": WEBSITE_URL,
+                    "terms_url": TERMS_URL,
+                    "privacy_url": PRIVACY_URL
+                }
+            )
+        except Exception as e:
+            logger.error(f"Failed to send house owner notification: {str(e)}")
+            email_success = False
+
+        if not email_success:
+            raise HTTPException(status_code=500, detail="Appeal submitted but some notifications failed")
+
+        return {"success": True, "message": "Appeal submitted successfully"}
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
