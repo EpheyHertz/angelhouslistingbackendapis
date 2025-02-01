@@ -112,7 +112,7 @@ def send_verification_email(email: str,username:str):
     """
     # Create verification token
     token = create_verification_token(email)
-    verification_url = f"http://localhost:8000/verify-email?token={token}&email={email}"
+    verification_url = f"https://angelhouslistingwebsite.vercel.app/verify-email?token={token}&email={email}"
     username_caps = username.upper()
 
     send_email(
@@ -152,7 +152,7 @@ def send_password_reset_email(email: str, token: str):
     """
     try:
         # Retrieve the base URL from environment variables for production or local settings
-        base_url = os.getenv("BASE_URL", "http://localhost:3000")  # Default to localhost for dev
+        base_url = os.getenv("BASE_URL", "https://angelhouslistingwebsite.vercel.app/")  # Default to localhost for dev
         
         # Include both the token and email in the reset URL
         reset_url = f"{base_url}/auth/password-reset?token={token}&email={email}"
