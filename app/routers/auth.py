@@ -291,7 +291,7 @@ async def verify_email(
         user.is_verified = True
         try:
     # Attempt to send the welcome email
-            email.send_welcome_email(email=user.email, username=user.username)
+            email.send_welcome_email(email=user.email, username=user.username,template_name='welcome_email.html')
         except Exception as e:
             # Log the exception details for debugging
             logger.error(f"Error sending welcome email to {user.email}: {str(e)}")
