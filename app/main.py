@@ -9,7 +9,7 @@ from .config import SENDLK_TOKEN,SECRET_KEY
 sendlk.initialize(SENDLK_TOKEN, SECRET_KEY)
 # models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
-from app.routers import auth, social_auth, house, reviews, admin,tokens,booking,code
+from app.routers import auth, social_auth, house, reviews, admin,tokens,booking,code,chatbot
 
 # Add SessionMiddleware
 # Replace 'your-secret-key' with a strong secret key or use an environment variable
@@ -43,3 +43,4 @@ app.include_router(reviews.router)
 app.include_router(admin.router)
 app.include_router(tokens.router)
 app.include_router(code.router, prefix="/phone")
+app.include_router(chatbot.router)

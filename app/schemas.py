@@ -400,3 +400,6 @@ class ContactRequest(BaseModel):
     email: str
     subject: str
     message: str
+
+class ChatRequest(BaseModel):
+    message: str

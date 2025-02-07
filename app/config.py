@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+HUGGINGFACE_API_KEY = os.getenv("HUGGINGFACE_API_KEY")
 DATABASE_ALEMBIC_URL = os.getenv("DATABASE_ALEMBIC_URL")
 SECRET_KEY = os.getenv("SECRET_KEY")
 SMTP_SERVER = os.getenv("SMTP_SERVER")
