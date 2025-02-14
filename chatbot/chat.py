@@ -84,22 +84,33 @@ else:
 # **Step 1: LLM Determines Whether to Fetch Listings or Use Knowledge Base**
 action_classification_prompt = PromptTemplate(
     template="""
-    You are an AI assistant helping users with real estate inquiries.
+    You are an AI assistant helping users with real estate inquiries. Your task is to classify the user's query into one of two categories:
 
-    User query: "{query}"
+    **Categories:**
+    1. **FETCH_LISTINGS**: The user is explicitly looking for property listings (e.g., houses, apartments, villas, rentals) and provides specific details such as location, price range, or property type.
+    2. **USE_KNOWLEDGE**: The user is seeking general real estate advice, such as investment tips, mortgage guidance, legal matters, or market trends.
 
-    Your task is to determine whether the user is:
-    1. **Requesting house listings** (e.g., searching for available properties)
-    2. **Seeking general real estate advice** (e.g., investment guidance, legal matters, mortgage advice)
+    **Rules for Classification:**
+    - Classify as **FETCH_LISTINGS** ONLY if:
+      - The query explicitly mentions **property types** (e.g., house, apartment, villa, rental) AND
+      - Includes at least **one specific detail** such as location, price range, or amenities.
+    - Classify as **USE_KNOWLEDGE** if:
+      - The query is about general real estate topics (e.g., "Should I invest in real estate?", "How do mortgages work?") OR
+      - The query lacks specific details about properties (e.g., "Tell me about the real estate market").
+    - If the query is ambiguous or lacks sufficient information, ask the user for clarification instead of making assumptions.
 
-    **Rules for Decision:**
-    - If the query includes any mention of **houses, apartments, villas, properties, rentals, or real estate** AND 
-      specifies both a **location** and a **price**, ALWAYS respond with "FETCH_LISTINGS".
-    - If the query is about general real estate knowledge (e.g., "Is it a good time to invest?" or "How do I get a mortgage?"), respond with "USE_KNOWLEDGE".
-    - If uncertain, assume the user is looking for listings and default to "FETCH_LISTINGS".
+    **Examples:**
+    1. "Find me a 2-bedroom apartment in New York under $3000" → FETCH_LISTINGS
+    2. "What are the best neighborhoods to invest in?" → USE_KNOWLEDGE
+    3. "How do I apply for a mortgage?" → USE_KNOWLEDGE
+    4. "Show me houses in Miami" → FETCH_LISTINGS
+    5. "Is it a good time to buy a house?" → USE_KNOWLEDGE
+    6. "Tell me about the real estate market in California" → USE_KNOWLEDGE
 
     **Response Format:**
-    - Reply with ONLY "FETCH_LISTINGS" or "USE_KNOWLEDGE" and nothing else.
+    - Reply with ONLY "FETCH_LISTINGS" or "USE_KNOWLEDGE". Do not include any additional text or explanations.
+
+    User query: "{query}"
     """,
     input_variables=["query"]
 )
@@ -128,11 +139,11 @@ extract_details_prompt = PromptTemplate(
 )
 
 # **Step 3: Fetch Houses from API**
-def fetch_houses_from_api(location=None, price=None, house_type=None, amenities=None, limit=5):
+def fetch_houses_from_api(location=None, price=None, house_type=None, amenities=None, limit=10):
     """
     Fetch houses from the API based on user-provided filters.
     """
-    base_url = " http://127.0.0.1:8000/houses/"
+    base_url = "https://angelhouslistingbackendapis.onrender.com/houses/"
     params = {}
 
     if location and location.lower() != "none":
@@ -140,7 +151,7 @@ def fetch_houses_from_api(location=None, price=None, house_type=None, amenities=
     if price and price.lower() != "none":
         params["max_price"] = price
     if house_type and house_type.lower() != "none":
-        params["house_type"] = house_type
+        params["type"] = house_type
     if amenities and amenities.lower() != "none":
         params["amenities"] = amenities
 
@@ -156,25 +167,39 @@ def fetch_houses_from_api(location=None, price=None, house_type=None, amenities=
 
 # **Step 4: Format API Response for Chatbot**
 def format_housing_response(houses):
-    """
-    Converts a list of houses into a chatbot-friendly response.
-    """
-    if "error" in houses:
-        return "Sorry, I couldn't fetch the house listings right now. Please try again later."
+    response = "🏡 **Available Properties Based on Your Search** 🏡\n\n"
+    
+    unique_houses = []
+    seen = set()
+    
+    for house in houses:
+        house_key = (house["title"], house["location"], house["price"], house["type"])
+        if house_key not in seen:
+            seen.add(house_key)
+            unique_houses.append(house)
 
-    response_text = "Here are some available properties based on your search:\n\n"
+    for house in unique_houses:
+        response += f"🏠 **{house['title']}**\n"
+        response += f"📍 *Location:* {house['location']}\n"
+        response += f"💰 *Price:* ${house['price']}/month\n"
+        response += f"🏠 *Type:* {house['type']}\n"
+        response += f"✨ *Amenities:* {', '.join(house['amenities'])}\n"
+        
+        owner = house["owner"]
+        if owner.get("is_verified"):
+            response += "✔️ *Verified Listing*\n"
+        
+        response += f"\n🔗 **Listed by:** {owner['full_name']}\n"
+        response += f"![Profile Image]({owner['profile_image']})\n\n"
+    
+    response += "Would you like more details or assistance in booking a visit? 😊"
+    
+    return response
 
-    for house in houses[:5]:  # Show top 5 results
-        response_text += (
-            f"🏡 **{house['title']}**\n"
-            f"📍 Location: {house['location']}\n"
-            f"💰 Price: ${house['price']}\n"
-            f"🏠 Type: {house['house_type']}\n"
-            f"✨ Amenities: {', '.join(house['amenities']) if house['amenities'] else 'None'}\n"
-            f"🔗 More info: {house['url']}\n\n"
-        )
 
-    return response_text
+
+
+
 
 # **Main Chatbot Function**
 def real_estate_chatbot(user_input: str):
@@ -204,7 +229,8 @@ def real_estate_chatbot(user_input: str):
 
             # Fetch and return listings
             house_list = fetch_houses_from_api(**details)
-            return format_housing_response(house_list)
+            print("House Lists Fetched",house_list['houses'])
+            return format_housing_response(house_list['houses'])
 
         else:
             # Use knowledge base for answering general real estate questions
