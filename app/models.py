@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey, DateTime, ARRAY, Float
+from decimal import Decimal
+from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey, DateTime, ARRAY, Float,DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.schema import ForeignKeyConstraint
@@ -138,7 +139,7 @@ class House(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(String)
-    price = Column(String, nullable=False)
+    price = Column(DECIMAL, nullable=False)
     location = Column(String, index=True)
     image_urls = Column(ARRAY(String))
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))

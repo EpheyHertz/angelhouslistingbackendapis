@@ -221,6 +221,8 @@ def book_house(
         Booking.house_id == booking_data.house_id,
         Booking.end_date > booking_data.start_date,
         Booking.start_date < booking_data.end_date,
+        Booking.user_id==current_user.id,
+        Booking.status != models.BookingStatus.CANCELED,
     ).first()
 
     if overlapping_booking:
@@ -250,7 +252,7 @@ def book_house(
             return int(cleaned_price)
         return int(price)
 
-    price = clean_price(house.price)
+    price = house.price
 
     # Calculate total price based on booking type
     if booking_data.booking_type == "monthly":

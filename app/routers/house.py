@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,Form
 from sqlalchemy.orm import Session
-from sqlalchemy import func,literal
+from sqlalchemy import Integer, cast, func,literal
 from typing import List, Optional
 from app import models, schemas
 from app.database import get_db
@@ -15,6 +15,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import class_mapper
 from collections import defaultdict
 import logging
+from sqlalchemy import or_, and_, func
+
 
 # Set up logging
 logger = logging.getLogger("house_creation")
@@ -224,6 +226,8 @@ async def create_house(
 
 
 
+
+
 @router.get("/", status_code=status.HTTP_200_OK)
 def list_houses(
     search: schemas.SearchParams = Depends(),
@@ -233,8 +237,7 @@ def list_houses(
     Fetch a list of houses with aggregated likes and reviews.
     Filters, pagination, and search criteria are applied based on user input.
     """
-    # print("Search location:", search.location)
-    # print("Query before filtering:", query)
+
     # Base query with joins for likes and reviews
     query = (
         db.query(
@@ -247,102 +250,99 @@ def list_houses(
         .outerjoin(models.Review, models.Review.house_id == models.House.id)
         .group_by(models.House.id)
     )
+
     def clean_location(location):
-        """
-        Process a location string by removing whitespace and 
-        eliminating the first word (comma-separated).
+        """Cleans and processes the location input for better matching."""
+        if not location:
+            return None
+        return location.strip().replace(" ", "").lower()
 
-        Args:
-            location (str): The original location string.
+    try:
+        # Apply filters based on search parameters
+        if search.location:
+            cleaned_location = clean_location(search.location)
+            query = query.filter(models.House.location.ilike(f"%{cleaned_location}%"))
 
-        Returns:
-            str: The processed location string.
-        """
-        if not location or "," not in location:
-            return location
-        
-        # Split by the comma and remove the first word
-        parts = location.split(",", 1)
-        processed_location = parts[1] if len(parts) > 1 else ""
+        if search.min_price is not None:
+                query = query.filter(cast(models.House.price, Integer) >= search.min_price)
 
-        # Remove all spaces
-        return processed_location.replace(" ", "")
+        if search.max_price is not None:
+                   query = query.filter(cast(models.House.price, Integer) <= search.max_price)
+        if search.house_type:
+            query = query.filter(models.House.type.ilike(f"%{search.house_type}%"))
 
-    # Example usage
- 
+        if search.amenities:
+            amenity_filters = [models.House.amenities.ilike(f"%{amenity}%") for amenity in search.amenities]
+            query = query.filter(or_(*amenity_filters))
 
-    # Apply filters based on search parameters
-    if search.location:
-        cleaned_location=clean_location(search.location)
-        print(cleaned_location)
-        query = query.filter(models.House.location.contains(cleaned_location))
-    if search.min_price is not None:
-        query = query.filter(models.House.price >= search.min_price)
-    if search.max_price is not None:
-        query = query.filter(models.House.price <= search.max_price)
-    if search.house_type:
-        query = query.filter(models.House.type == search.house_type)
-    if search.amenities:
-        query = query.filter(models.House.amenities.contains(search.amenities))
-    if search.keywords:
-        query = query.filter(
-            or_(
+        if search.keywords:
+            keyword_filter = or_(
                 models.House.title.ilike(f"%{search.keywords}%"),
                 models.House.description.ilike(f"%{search.keywords}%"),
+                models.House.location.ilike(f"%{search.keywords}%"),
+                models.House.type.ilike(f"%{search.keywords}%"),
+                models.House.amenities.ilike(f"%{search.keywords}%"),
             )
+            query = query.filter(keyword_filter)
+
+        # Apply pagination
+        limit = min(max(search.limit or 20, 1), 100)  # Ensures 1 ≤ limit ≤ 100
+        offset = max(search.offset or 0, 0)
+        query = query.offset(offset).limit(limit)
+
+        # Fetch results
+        results = query.all()
+
+        # Pre-fetch owners to avoid N+1 queries
+        owner_ids = {house.owner_id for house, _, _, _ in results}
+        owners = db.query(models.User).filter(models.User.id.in_(owner_ids)).all()
+        owner_dict = {
+            owner.id: {
+                "id": owner.id,
+                "username": owner.username,
+                "full_name": owner.full_name or None,
+                "is_verified": owner.is_verified,
+                "profile_image": owner.profile_image or None,
+                "role": owner.role,
+                "social_auth_provider": owner.social_auth_provider,
+            }
+            for owner in owners
+        }
+
+        # Format results
+        houses = [
+            {
+                "id": house.id,
+                "title": house.title,
+                "description": house.description,
+                "price": house.price,
+                "location": house.location,
+                "room_count": house.room_count,
+                "type": house.type,
+                "amenities": house.amenities,
+                "image_urls": house.image_urls,
+                "created_at": house.created_at,
+                "updated_at": house.updated_at,
+                "owner_id": house.owner_id,
+                "owner": owner_dict.get(house.owner_id),  # Owner data
+                "is_approved": house.is_approved,
+                "availability": house.availability,
+                "image_url": house.image_urls[0] if house.image_urls else None,
+                "like_count": like_count or 0,
+                "review_count": review_count or 0,
+                "reviews": reviews or [],
+            }
+            for house, like_count, reviews, review_count in results
+        ]
+
+        return {"houses": houses, "total_count": len(houses), "offset": offset, "limit": limit}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving house listings: {str(e)}"
         )
 
-    # Apply pagination
-    limit = min(max(search.limit or 20, 1), 100)  # Limit to 100 max
-    offset = max(search.offset or 0, 0)
-    query = query.offset(offset).limit(limit)
-
-    # Fetch results
-    results = query.all()
-
-    # Pre-fetch owners to avoid N+1 queries
-    owner_ids = {house.owner_id for house, _, _, _ in results}
-    owners = db.query(models.User).filter(models.User.id.in_(owner_ids)).all()
-    owner_dict = {
-        owner.id: {
-            "id": owner.id,
-        "username": owner.username,
-        "full_name": owner.full_name or None,
-        "is_verified": owner.is_verified,
-        "profile_image": owner.profile_image or None,
-        "role": owner.role,
-        "social_auth_provider": owner.social_auth_provider,
-        }
-        for owner in owners
-    }
-
-    # Format results into a consistent schema
-    houses = [
-        {
-            "id": house.id,
-            "title": house.title,
-            "description": house.description,
-            "price": house.price,
-            "location": house.location,
-            "room_count": house.room_count,
-            "type": house.type,
-            "amenities": house.amenities,
-            "image_urls": house.image_urls,
-            "created_at": house.created_at,
-            "updated_at": house.updated_at,
-            "owner_id": house.owner_id,
-            "owner": owner_dict.get(house.owner_id),  # Filtered owner data
-            "is_approved": house.is_approved,
-            "availability": house.availability,
-            "image_url": house.image_urls[0] if house.image_urls else None,
-            "like_count": like_count or 0,
-            "review_count": review_count or 0,
-            "reviews": reviews or [],
-        }
-        for house, like_count, reviews, review_count in results
-    ]
-    
-    return {"houses": houses, "total_count": len(houses), "offset": offset, "limit": limit}
 
 
 
@@ -437,7 +437,7 @@ async def update_house(
                 price_val = float(price)
                 if price_val <= 0:
                     raise ValueError("Price must be a positive number")
-                db_house.price = str(price_val)  # Store as string but validate as number
+                db_house.price = price_val  # Store as string but validate as number
                 updates_made = True
             except ValueError as e:
                 raise HTTPException(status_code=400, detail=f"Invalid price: {str(e)}")
