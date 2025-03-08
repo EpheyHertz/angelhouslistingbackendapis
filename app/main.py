@@ -5,12 +5,13 @@ from app.database import engine
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from upstash_workflow.fastapi import Serve
 from .config import SENDLK_TOKEN,SECRET_KEY
 sendlk.initialize(SENDLK_TOKEN, SECRET_KEY)
 # models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
-from app.routers import auth, social_auth, house, reviews, admin,tokens,booking,code,chatbot
-
+from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows
+serve = Serve(app)
 # Add SessionMiddleware
 # Replace 'your-secret-key' with a strong secret key or use an environment variable
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
@@ -42,5 +43,7 @@ app.include_router(booking.router)
 app.include_router(reviews.router)
 app.include_router(admin.router)
 app.include_router(tokens.router)
+app.include_router(mpesa.router)
+app.include_router(workflows.router)
 app.include_router(code.router, prefix="/phone")
-app.include_router(chatbot.router)
+

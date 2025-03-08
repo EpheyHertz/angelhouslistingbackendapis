@@ -1,17 +1,25 @@
 from fastapi import APIRouter, HTTPException, Depends,status
 from typing import List,Optional
+import httpx
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import alias, func
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from upstash_workflow import AsyncWorkflowContext
 from app.database import get_db
 from app import models,schemas
 from app.models import Booking, Cart, House, User,Like,Review
 import logging
 from app.schemas import BookingCreate, CartAdd, BookingResponse, CartResponse,CartSearchResponse
+from app.config import QSTASH_TOKEN, QSTASH_URL
 from ..services.email import send_email,send_booking_email_to_owner,send_booking_email_to_booker,send_booking_approved_email,send_booking_cancellation_email  # Custom utility to send emails
 from ..services.oauth import get_current_user,get_current_admin
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Dict, Any
+from qstash import AsyncQStash
+
+
 
 router = APIRouter(prefix="/houses", tags=["Houses"])
 
@@ -189,7 +197,7 @@ def remove_from_cart(
 from fastapi import HTTPException, status
 
 @router.post("/book")
-def book_house(
+async def book_house(
     booking_data: BookingCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -319,6 +327,7 @@ def book_house(
                 )
                 db.commit()
                 db.refresh(new_booking)
+
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,detail='Failed to send email')
@@ -508,6 +517,7 @@ def cancel_booking(
 @router.post("/booking/house_owner/cancel/{booking_id}",status_code=status.HTTP_200_OK)
 def owner_cancel_booking(
     booking_id: int,
+
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -583,34 +593,34 @@ def owner_cancel_booking(
 
     return booking
 
-@router.post("/bookings/{booking_id}/approve", response_model=schemas.BookingResponse,status_code=status.HTTP_200_OK)
-def approve_booking(
+# Initialize QStash client
+client = AsyncQStash(QSTASH_TOKEN)
+
+@router.post("/bookings/{booking_id}/approve", status_code=status.HTTP_200_OK, response_model=None)
+async def approve_booking(
     booking_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),  # Ensure the house owner is logged in
+    current_user: User = Depends(get_current_user),
 ):
+    """
+    Approve a booking and trigger the reminder workflow using QStash.
+    """
     # Retrieve booking
-    booking = db.query(models.Booking).filter(models.Booking.id == booking_id).first()
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
 
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found.")
 
-    if booking.status not in ["pending", "approved","canceled"]:
-        raise HTTPException(
-            status_code=400, detail="Only pending bookings can be approved."
-        )
-
+    if booking.status not in ["pending", "approved"]:
+        raise HTTPException(status_code=400, detail="Only pending bookings can be approved.")
 
     if booking.house.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403, detail="You are not authorized to approve this booking."
-        )
+        raise HTTPException(status_code=403, detail="You are not authorized to approve this booking.")
 
     # Approve booking
     booking.status = "approved"
-    db.commit()
-
-    # Notify both the user and the house owner
+    
+    # Send approval emails
     notification_data = [
         {
             "to_email": booking.user.email,
@@ -619,8 +629,8 @@ def approve_booking(
             "template_name": "send_booking_email.html",
             "house_title": booking.house.title,
             "rooms_no": booking.room_count,
-            "end_date": booking.end_date,  # Use booking's end_date
-            "start_date": booking.start_date,  # Use booking's start_date
+            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
         },
         {
             "to_email": booking.house.owner.email,
@@ -629,26 +639,50 @@ def approve_booking(
             "template_name": "booking_owner_email.html",
             "house_title": booking.house.title,
             "rooms_no": booking.room_count,
-            "guest_name": booking.user.full_name or booking.user.username,  # Guest is the booking user
-            "end_date": booking.end_date,  # Use booking's end_date
-            "start_date": booking.start_date,  # Use booking's start_date
+            "guest_name": booking.user.full_name or booking.user.username,
+            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
         },
     ]
 
     for data in notification_data:
-        send_booking_approved_email(
-            to_email=data["to_email"],
-            username=data["username"],
-            subject=data["subject"],
-            template_name=data["template_name"],
-            house_title=data["house_title"],
-            rooms_no=data.get("room_count"),  # Pass rooms_no if available
-            guest_name=data.get("guest_name"),  # Pass guest_name if available
-            start_date=data.get("start_date"),  # Pass start_date if available
-            end_date=data.get("end_date"),  # Pass end_date if available
-        )
+        send_booking_approved_email(**data)
+
+    db.commit()
+
+    # 🚀 **Trigger Reminder Workflow via QStash**
+    current_date = datetime.now().date()
+    booking_start_date = booking.start_date.date()
+
+    # **Ensure reminders are only sent if the booking date is in the future**
+    if booking_start_date > current_date:
+        reminder_payload = {
+            "booking_id": booking.id,
+            "email": booking.user.email,
+            "username": booking.user.full_name or booking.user.username,
+            "house_title": booking.house.title,
+            "rooms_no": booking.room_count,
+            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "house_owner_email": booking.house.owner.email,
+            "house_owner_name": booking.house.owner.full_name or booking.house.owner.username,
+        }
+
+        try:
+            res = await client.message.publish_json(
+                url="https://digitaloceanapis.comradehomes.me/api/py/reminder",  # Update with production API URL
+                body=reminder_payload,
+                headers={"Content-Type": "application/json"},
+                retries=3,
+            )
+            logging.info(f"QStash triggered successfully. Message ID: {res.message_id}")
+        except Exception as e:
+            logging.error(f"Failed to trigger QStash: {e}")
 
     return booking
+
+
+
 
 WEBSITE_URL = "https://angelhouslistingwebsite.vercel.app"
 TERMS_URL = f"{WEBSITE_URL}/terms"

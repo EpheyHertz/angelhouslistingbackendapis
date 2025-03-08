@@ -347,6 +347,9 @@ def list_houses(
 
 
 
+
+
+
 @router.get("/house/{house_id}", status_code=status.HTTP_200_OK)
 def get_house(house_id: int, db: Session = Depends(get_db)):
     # Query the house with likes (removed reviews logic)

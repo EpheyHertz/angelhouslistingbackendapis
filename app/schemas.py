@@ -7,6 +7,13 @@ from pydantic import BaseModel, Field
 from app.models import UserRole, VerificationStatus, SocialAuthProvider, HouseType
 from fastapi import File, UploadFile
 from typing import Literal
+# Pydantic models for request validation
+class PaymentRequest(BaseModel):
+    phone_number: str
+    amount: int
+
+class STKQueryRequest(BaseModel):
+    checkout_request_id: str
 
 class UserBase(BaseModel):
     username: str
