@@ -4,7 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.models import Booking
 from app.services.email import send_booking_email_to_owner, send_booking_email_to_booker
 from contextlib import asynccontextmanager
@@ -18,12 +18,9 @@ from apscheduler.triggers.cron import CronTrigger
 # Set up logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-router = APIRouter(prefix="/workflows", tags=["Automatic Workflows"])
 
 # Define target days for reminders
 REMINDER_DAYS = [1, 3, 5, 7]
-
-
 
 # Global variable to track executions
 EXECUTION_STATS = {
@@ -32,9 +29,6 @@ EXECUTION_STATS = {
     "total_bookings_processed": 0,
     "total_emails_sent": 0
 }
-
-
-from fastapi import FastAPI, APIRouter
 
 # Create the router
 router = APIRouter(prefix="/workflows", tags=["Automatic Workflows"])
@@ -48,14 +42,14 @@ async def lifespan(app: FastAPI):
     # Start scheduler on app startup
     scheduler.start()
     logger.info("Scheduler started at: %s", datetime.now())
-    
+    print("Scheduler started at: ", datetime.now())
     # Add job for booking reminders
     job = scheduler.add_job(
-    check_upcoming_bookings,
-    CronTrigger(hour=9, minute=0),  # Run at 9:00 AM every day
-    id="booking_reminder_daily",
-    replace_existing=True
-)
+        check_upcoming_bookings,
+        CronTrigger(hour=9,minute=0),  # Run at 9:00 AM every day
+        id="booking_reminder_daily",
+        replace_existing=True
+    )
     
     # Log job information
     next_run = job.next_run_time
@@ -72,29 +66,11 @@ def setup_scheduler(app: FastAPI):
     # Attach the lifespan to the app
     app.lifespan = lifespan
     
-    # Include the scheduler status endpoint
-    @app.get("/scheduler-status")
-    async def scheduler_status():
-        jobs = []
-        for job in scheduler.get_jobs():
-            jobs.append({
-                "id": job.id,
-                "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
-                "function": job.func.__name__,
-                "trigger": str(job.trigger)
-            })
-        
-        return {
-            "scheduler_running": scheduler.running,
-            "jobs": jobs,
-            "current_time": datetime.now().isoformat(),
-            "execution_stats": EXECUTION_STATS
-        }
-try:
-    from app.database import SessionLocal
-    db = SessionLocal()
-except Exception as e:
-    logger.error(f"Error in database connection: {str(e)}", exc_info=True)
+    # Include the router in the app
+    app.include_router(router)
+    
+    logger.info("Scheduler setup completed for the application")
+    return app
 
 @router.get("/scheduler-status")
 async def scheduler_status():
@@ -125,8 +101,7 @@ async def check_upcoming_bookings():
                 EXECUTION_STATS["total_runs"], start_time)
     
     try:
-        # Use your existing synchronous session
-        from app.database import SessionLocal
+        # Create a new session for this task
         db = SessionLocal()
         try:
             # Get bookings that need reminders
@@ -145,7 +120,7 @@ async def check_upcoming_bookings():
             emails_sent = 0
             for booking in bookings:
                 days_remaining = (booking.start_date.date() - today).days
-                sent = await send_reminders(booking, days_remaining)
+                sent = await send_reminder_emails(booking, days_remaining)
                 if sent:
                     emails_sent += 2  # 2 emails per booking (guest + owner)
             
@@ -189,46 +164,15 @@ def get_bookings_for_reminders_sync(db) -> List[Booking]:
         logger.error(f"Database error fetching bookings: {str(e)}", exc_info=True)
         return []
 
-async def send_reminders(booking: Booking, days_remaining: int):
-    """Get all bookings that need reminders today"""
-    today = datetime.now().date()
-    
-    # Calculate target dates for reminders
-    target_dates = [today + timedelta(days=days) for days in REMINDER_DAYS]
-    logger.info("Checking for bookings on dates: %s", target_dates)
-    
-    try:
-        # Fetch confirmed bookings starting on target dates
-        result = db.execute(
-            select(Booking).where(
-                and_(
-                    Booking.start_date.in_(target_dates),
-                    Booking.status == "approved"
-                )
-            )
-        )
-        bookings = result.scalars().all()
-        
-        # Log results
-        if bookings:
-            booking_details = [f"ID: {b.id}, Date: {b.start_date}" for b in bookings]
-            logger.info("Found bookings: %s", booking_details)
-        
-        return bookings
-        
-    except Exception as e:
-        logger.error(f"Database error fetching bookings: {str(e)}", exc_info=True)
-        return []
-
-async def send_reminders(booking: Booking, days_remaining: int):
+async def send_reminder_emails(booking: Booking, days_remaining: int):
     """Send reminders for a specific booking"""
     try:
         # Validate booking data
-        if not booking.house.owner or not booking.user:
+        if not booking.house or not booking.user:
             logger.warning(f"Booking {booking.id} has missing property or guest data")
             return False
             
-        if not booking.house.owner:
+        if not hasattr(booking.house, 'owner') or not booking.house.owner:
             logger.warning(f"Property for booking {booking.id} has missing owner data")
             return False
         
@@ -269,13 +213,20 @@ async def send_reminders(booking: Booking, days_remaining: int):
     except Exception as e:
         logger.error(f"Failed to send reminders for booking {booking.id}: {str(e)}", exc_info=True)
         return False
+    
+async def call_trigger_reminders():
+    """Manually trigger the booking reminder job"""
+    try:
+        await check_upcoming_bookings()
+        return {"status": "success", "message": "Booking reminders check completed"}
+    except Exception as e:
+        logger.error(f"Error in manual reminder trigger: {str(e)}", exc_info=True)
+        return {"status": "error", "message": str(e)}
+
+
 
 @router.post("/trigger-reminders")
 async def trigger_reminders():
-    """Manually trigger the booking reminder job"""
-    await call_trigger_reminders()
-    
-async def call_trigger_reminders():
     """Manually trigger the booking reminder job"""
     try:
         await check_upcoming_bookings()

@@ -13,6 +13,8 @@ from app.routers.workflows import lifespan
 app = FastAPI(lifespan=lifespan)
 from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows
 serve = Serve(app)
+from app.routers.workflows import setup_scheduler
+setup_scheduler(app)
 # Add SessionMiddleware
 # Replace 'your-secret-key' with a strong secret key or use an environment variable
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
