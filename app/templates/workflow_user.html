@@ -1,70 +1,277 @@
-<!-- Email Template for Booking Owner -->
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Upcoming Stay | Comrade Homes</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7fa;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .main-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1c4d78 0%, #2A5C82 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid #f0b941;
+        }
+        
+        .logo img {
+            height: 60px;
+            width: auto;
+        }
+        
+        .content {
+            padding: 40px;
+            color: #333333;
+        }
+        
+        h1 {
+            color: #1c4d78;
+            margin: 0 0 25px 0;
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 1.3;
+        }
+        
+        p {
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #444;
+        }
+        
+        .booking-details {
+            background-color: #f8f9fb;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #2A5C82;
+        }
+        
+        .booking-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .booking-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .booking-label {
+            width: 120px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .booking-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .alert {
+            background-color: #fff8e6;
+            border-left: 4px solid #f0b941;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .alert p {
+            margin: 0;
+            color: #8c6d2e;
+            font-weight: 500;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #2A5C82;
+            color: white;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 25px 0;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        
+        .cta-button:hover {
+            background-color: #1c4d78;
+        }
+        
+        .travel-tips {
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #6aa3d8;
+        }
+        
+        .travel-tips h3 {
+            color: #1c4d78;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .travel-tips ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .travel-tips li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+        
+        .footer {
+            background-color: #f4f7fa;
+            padding: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer a {
+            color: #2A5C82;
+            text-decoration: none;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            display: inline-block;
+            margin: 0 8px;
+        }
+        
         @media only screen and (max-width: 600px) {
-            .container { width: 100% !important; }
+            .content, .header, .footer {
+                padding: 20px;
+            }
+            
+            .booking-row {
+                flex-direction: column;
+            }
+            
+            .booking-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-            <td align="center" style="padding: 20px 0; background-color: #f5f5f5;">
-                <table class="container" width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff;">
-                    <tr>
-                        <td style="padding: 30px; text-align: center; background-color: #2A5C82;">
-                            <a href="https://www.comradehomes.me">
-                                <img src="https://www.comradehomes.me/favicon.ico" alt="Comrade Homes" width="200" style="border: 0;">
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px 30px;">
-                            <h1 style="color: #2A5C82; margin: 0 0 20px 0;">
-                                {% if days_before == 1 %}
-                                🚨 Final Reminder: Your Booking Starts Tomorrow!
-                                {% else %}
-                                🔔 Reminder: Your Booking Starts in {{ days_before }} Days
-                                {% endif %}
-                            </h1>
-                            <p style="color: #333333; line-height: 1.6;">Hi {{ booking_owner_username }},</p>
-                            <p style="color: #333333; line-height: 1.6;">Your booking for <strong>{{ house_title }}</strong> is approaching:</p>
-                            
-                            <table style="margin: 25px auto; background: #f8f9fa; padding: 20px; border-radius: 8px;" width="100%">
-                                <tr>
-                                    <td style="padding: 8px; color: #666;"><strong>Property:</strong></td>
-                                    <td style="padding: 8px; color: #333;">{{ house_title }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; color: #666;"><strong>Dates:</strong></td>
-                                    <td style="padding: 8px; color: #333;">{{ start_date }} to {{ end_date }}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; color: #666;"><strong>Booking ID:</strong></td>
-                                    <td style="padding: 8px; color: #333;">{{ booking_id }}</td>
-                                </tr>
-                            </table>
-
-                            {% if days_before == 1 %}
-                            <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                                <p style="color: #856404; margin: 0;">⏰ This is your final reminder! Please ensure you're prepared for your stay.</p>
-                            </div>
-                            {% endif %}
-
-                            <a href="https://www.comradehomes.me/booking/{{ booking_id }}" style="display: inline-block; background-color: #2A5C82; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin: 20px 0;">View Booking Details</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 20px 30px; background-color: #f5f5f5; text-align: center; color: #666;">
-                            <p style="margin: 0; font-size: 12px;">Need help? Contact our support team at <a href="mailto:support@comradehomes.me" style="color: #2A5C82;">support@comradehomes.me</a></p>
-                            <p style="margin: 10px 0 0 0; font-size: 12px;">© 2023 Comrade Homes. All rights reserved.</p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+<body>
+    <div style="padding: 20px;">
+        <div class="main-container">
+            <div class="header">
+                <div class="logo">
+                    <img src="https://www.comradehomes.me/favicon.ico" alt="Comrade Homes" width="60">
+                </div>
+            </div>
+            
+            <div class="content">
+                <h1>
+                    {% if days_remaining == 1 %}
+                    🚨 Your Stay Begins Tomorrow!
+                    {% else %}
+                    🔔 Your Stay Begins in {{ days_remaining }} Days
+                    {% endif %}
+                </h1>
+                
+                <p>Hello {{ booking_owner_username }},</p>
+                
+                <p>We're excited about your upcoming stay at <strong>{{ house_title }}</strong>! Your reservation begins in {{ days_remaining }} day{% if days_remaining != 1 %}s{% endif %}.</p>
+                
+                <div class="booking-details">
+                    <div class="booking-row">
+                        <div class="booking-label">Property:</div>
+                        <div class="booking-value">{{ house_title }}</div>
+                    </div>
+                    <div class="booking-row">
+                        <div class="booking-label">Host:</div>
+                        <div class="booking-value">{{ house_owner_name }}</div>
+                    </div>
+                    <div class="booking-row">
+                        <div class="booking-label">Check-in:</div>
+                        <div class="booking-value">{{ start_date }}</div>
+                    </div>
+                    <div class="booking-row">
+                        <div class="booking-label">Check-out:</div>
+                        <div class="booking-value">{{ end_date }}</div>
+                    </div>
+                    <div class="booking-row">
+                        <div class="booking-label">Booking ID:</div>
+                        <div class="booking-value">{{ booking_id }}</div>
+                    </div>
+                </div>
+                
+                {% if days_remaining == 1 %}
+                <div class="alert">
+                    <p>⏰ <strong>TOMORROW'S THE DAY!</strong> Please review check-in instructions and prepare for your arrival. Your host is expecting you!</p>
+                </div>
+                {% endif %}
+                
+                <p>Your host has been notified and is preparing for your arrival. Check-in details and property access instructions will be available in your booking portal.</p>
+                
+                <div class="travel-tips">
+                    <h3>Pre-Arrival Checklist:</h3>
+                    <ul>
+                        <li>Review check-in instructions in your booking details</li>
+                        <li>Save the property address and contact information</li>
+                        <li>Plan your route to the property</li>
+                        <li>Contact your host with any questions or special requests</li>
+                        <li>Check local weather forecasts to pack appropriately</li>
+                    </ul>
+                </div>
+                
+                <a href="https://www.comradehomes.me/booking/{{ booking_id }}" class="cta-button">View Booking Details</a>
+                
+                <p style="margin-top: 30px;">We hope you have a wonderful stay!</p>
+                
+                <p style="margin-bottom: 0;">Safe travels,<br>The Comrade Homes Team</p>
+            </div>
+            
+            <div class="footer">
+                <p>Questions about your booking? We're here to help.<br><a href="mailto:support@comradehomes.me">support@comradehomes.me</a> | <a href="tel:+12345678900">+1 (234) 567-8900</a></p>
+                
+                <div class="social-links">
+                    <a href="#" class="social-icon">
+                        <img src="/api/placeholder/24/24" alt="Facebook" width="24" height="24">
+                    </a>
+                    <a href="#" class="social-icon">
+                        <img src="/api/placeholder/24/24" alt="Instagram" width="24" height="24">
+                    </a>
+                    <a href="#" class="social-icon">
+                        <img src="/api/placeholder/24/24" alt="Twitter" width="24" height="24">
+                    </a>
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 12px;">© 2023 Comrade Homes. All rights reserved.<br>
+                123 Booking Street, Apartment City, AC 12345</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
