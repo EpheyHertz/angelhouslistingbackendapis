@@ -1,7 +1,9 @@
+import json
 from fastapi import APIRouter, HTTPException, Depends,status
 from typing import List,Optional
 import httpx
 from pydantic import BaseModel
+import requests
 from sqlalchemy.orm import Session
 from sqlalchemy import alias, func
 from datetime import datetime, timedelta
@@ -12,12 +14,13 @@ from app import models,schemas
 from app.models import Booking, Cart, House, User,Like,Review
 import logging
 from app.schemas import BookingCreate, CartAdd, BookingResponse, CartResponse,CartSearchResponse
-from app.config import QSTASH_TOKEN, QSTASH_URL
+from app.config import QSTASH_TOKEN, QSTASH_URL,QSTASH_CURRENT_SIGNING_KEY,QSTASH_NEXT_SIGNING_KEY
 from ..services.email import send_email,send_booking_email_to_owner,send_booking_email_to_booker,send_booking_approved_email,send_booking_cancellation_email  # Custom utility to send emails
 from ..services.oauth import get_current_user,get_current_admin
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Dict, Any
 from qstash import AsyncQStash
+from app.routers.workflows import call_trigger_reminders
 
 
 
@@ -593,8 +596,10 @@ def owner_cancel_booking(
 
     return booking
 
-# Initialize QStash client
-client = AsyncQStash(QSTASH_TOKEN)
+
+
+client=AsyncQStash(base_url=QSTASH_URL,token=QSTASH_TOKEN)
+
 
 @router.post("/bookings/{booking_id}/approve", status_code=status.HTTP_200_OK, response_model=None)
 async def approve_booking(
@@ -629,8 +634,8 @@ async def approve_booking(
             "template_name": "send_booking_email.html",
             "house_title": booking.house.title,
             "rooms_no": booking.room_count,
-            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_date": booking.end_date,
+            "start_date": booking.start_date,
         },
         {
             "to_email": booking.house.owner.email,
@@ -640,15 +645,15 @@ async def approve_booking(
             "house_title": booking.house.title,
             "rooms_no": booking.room_count,
             "guest_name": booking.user.full_name or booking.user.username,
-            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "end_date": booking.end_date,
+            "start_date": booking.start_date,
         },
     ]
 
-    for data in notification_data:
-        send_booking_approved_email(**data)
+    # for data in notification_data:
+    #     send_booking_approved_email(**data)
 
-    db.commit()
+    # db.commit()
 
     # 🚀 **Trigger Reminder Workflow via QStash**
     current_date = datetime.now().date()
@@ -656,30 +661,9 @@ async def approve_booking(
 
     # **Ensure reminders are only sent if the booking date is in the future**
     if booking_start_date > current_date:
-        reminder_payload = {
-            "booking_id": booking.id,
-            "email": booking.user.email,
-            "username": booking.user.full_name or booking.user.username,
-            "house_title": booking.house.title,
-            "rooms_no": booking.room_count,
-            "start_date": booking.start_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "end_date": booking.end_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "house_owner_email": booking.house.owner.email,
-            "house_owner_name": booking.house.owner.full_name or booking.house.owner.username,
-        }
-
-        try:
-            res = await client.message.publish_json(
-                url="https://digitaloceanapis.comradehomes.me/api/py/reminder",  # Update with production API URL
-                body=reminder_payload,
-                headers={"Content-Type": "application/json"},
-                retries=3,
-            )
-            logging.info(f"QStash triggered successfully. Message ID: {res.message_id}")
-        except Exception as e:
-            logging.error(f"Failed to trigger QStash: {e}")
-
+         await call_trigger_reminders()
     return booking
+
 
 
 

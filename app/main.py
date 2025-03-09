@@ -9,7 +9,8 @@ from upstash_workflow.fastapi import Serve
 from .config import SENDLK_TOKEN,SECRET_KEY
 sendlk.initialize(SENDLK_TOKEN, SECRET_KEY)
 # models.Base.metadata.create_all(bind=engine)
-app = FastAPI()
+from app.routers.workflows import lifespan
+app = FastAPI(lifespan=lifespan)
 from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows
 serve = Serve(app)
 # Add SessionMiddleware
