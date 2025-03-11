@@ -57,7 +57,11 @@ class HouseStatus(str, enum.Enum):
     sold = "sold"
     booked = "booked"
 
-# Transaction Model
+class TransactionStatus(enum.Enum):  # Don't subclass str, just use enum.Enum
+    PENDING = "Pending"
+    COMPLETED = "Completed"
+    FAILED = "Failed"
+
 class Transaction(Base):
     __tablename__ = "transactions"
 
@@ -65,15 +69,19 @@ class Transaction(Base):
     transaction_type = Column(Enum(TransactionType), nullable=False)
     amount = Column(Float, nullable=False)
     transaction_id = Column(String, unique=True, index=True, nullable=False)
-    house_id = Column(Integer, ForeignKey('houses.id', ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
+    house_id = Column(Integer, ForeignKey('houses.id', ondelete="CASCADE"), nullable=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), nullable=True)
+    description = Column(String, nullable=True)
+    currency = Column(String, nullable=False)
+    
+    # ✅ Fix: Pass Enum Values
+    status = Column(Enum(TransactionStatus), nullable=False, default=TransactionStatus.PENDING)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     house = relationship("House", back_populates="transactions")
     user = relationship("User", back_populates="transactions")
-
-
 
 
 # User model

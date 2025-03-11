@@ -410,3 +410,21 @@ class ContactRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str
+
+
+
+class PaymentRequestStripe(BaseModel):
+    amount: int = Field(..., gt=0, description="Amount in the smallest currency unit (e.g., cents for USD)")
+    currency: str = Field(..., description="Currency code (e.g., 'usd', 'eur')")
+    token: str = Field(..., description="Stripe token obtained from the client-side (e.g., Stripe.js)")
+    name: Optional[str] = Field(None, description="Name of the user")
+    city: Optional[str] = Field(None, description="City of the user")
+    email:EmailStr=Field(...,description="Email entered by the user")
+    
+
+
+class PaymentResponseStripe(BaseModel):
+    status: str = Field(..., description="Status of the payment (e.g., 'success', 'error')")
+    charge_id: Optional[str] = Field(None, description="Stripe charge ID")
+    transaction_id: Optional[int] = Field(None, description="Database transaction ID")
+    message: Optional[str] = Field(None, description="Error message or additional information")

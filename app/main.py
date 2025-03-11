@@ -11,7 +11,7 @@ sendlk.initialize(SENDLK_TOKEN, SECRET_KEY)
 # models.Base.metadata.create_all(bind=engine)
 from app.routers.workflows import lifespan
 app = FastAPI(lifespan=lifespan)
-from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows
+from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows,stripe_payments
 serve = Serve(app)
 from app.routers.workflows import setup_scheduler
 setup_scheduler(app)
@@ -47,6 +47,8 @@ app.include_router(reviews.router)
 app.include_router(admin.router)
 app.include_router(tokens.router)
 app.include_router(mpesa.router)
+app.include_router(stripe_payments.router)
 app.include_router(workflows.router)
+# app.include_router(invoice_downloading.router)
 app.include_router(code.router, prefix="/phone")
 
