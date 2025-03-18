@@ -494,7 +494,7 @@ class HouseCreateUpdated(BaseModel):
         description: str = Form(..., description="A brief description of the house"),
         price: str = Form(..., description="The price of the house"),
         location: str = Form(..., description="The location of the house"),
-        deposit: str = Field(..., description="The refundable deposit of the house"),
+        deposit: str = Form(..., description="The refundable deposit of the house"),
         room_count: int = Form(..., description="The number of rooms in the house"),
         transaction_id: str = Form(..., description="Transaction id for the house"),
         currency: str = Form("Kes", description="Type of currency (default: Kes)"),
