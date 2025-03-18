@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Verification</title>
+  <title>Comrade Homes - Email Verification</title>
   <style>
     /* General Styles */
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #f4f4f9;
+      background-color: #f4f8fd;
       color: #333333;
       margin: 0;
       padding: 0;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .container {
@@ -20,74 +20,99 @@
       max-width: 640px;
       margin: 20px auto;
       background-color: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      padding: 0;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
     }
 
     /* Header Styles */
     .header {
-      background-color: #2A5C8A;
-      padding: 28px 20px;
+      background: linear-gradient(135deg, #1a4da8 0%, #0a2b64 100%);
+      padding: 32px 20px;
       text-align: center;
-      border-radius: 10px 10px 0 0;
       color: #ffffff;
     }
 
     .header h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 28px;
       letter-spacing: 0.5px;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .logo {
+      margin-bottom: 15px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #ffffff;
     }
 
     /* Content Styles */
     .content {
       margin: 30px 0;
-      padding: 0 20px;
+      padding: 0 35px;
       font-size: 16px;
     }
 
     .content p {
       margin: 18px 0;
+      color: #445566;
+    }
+
+    .content a {
+      color: #1a4da8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .content a:hover {
+      text-decoration: underline;
     }
 
     /* Verification Elements */
     .verification-section {
-      margin: 30px 0;
+      margin: 35px 0;
       text-align: center;
     }
 
     .verification-code {
-      background-color: #f8f9fa;
-      color: #2A5C8A;
-      padding: 16px 32px;
-      border-radius: 8px;
+      background: linear-gradient(to right, #f0f5ff, #e6eeff);
+      color: #1a4da8;
+      padding: 18px 35px;
+      border-radius: 10px;
       font-family: 'Courier New', monospace;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       display: inline-block;
-      border: 2px dashed #2A5C8A;
-      margin: 15px 0;
+      border: 2px dashed #1a4da8;
+      margin: 18px 0;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(26, 77, 168, 0.1);
     }
 
     .verification-link {
       display: inline-block;
-      background-color: #2A5C8A;
+      background: linear-gradient(to right, #1a4da8, #2c62c9);
       color: #ffffff !important;
       text-decoration: none;
-      padding: 14px 35px;
-      border-radius: 8px;
+      padding: 16px 38px;
+      border-radius: 10px;
       font-weight: 600;
-      margin: 20px 0;
+      font-size: 17px;
+      margin: 25px 0 15px;
       transition: all 0.3s ease;
-      border: 2px solid #2A5C8A;
+      border: none;
       position: relative;
+      box-shadow: 0 6px 15px rgba(26, 77, 168, 0.25);
     }
 
     .verification-link:hover {
-      background-color: #1E4566;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(42, 92, 138, 0.2);
+      background: linear-gradient(to right, #0d3c8e, #1a4da8);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(26, 77, 168, 0.3);
     }
 
     .verification-link::after {
@@ -101,14 +126,25 @@
       margin-left: 15px;
     }
 
+    /* Divider */
+    .divider {
+      height: 4px;
+      background: linear-gradient(to right, #1a4da8, #4a7cdd, #1a4da8);
+      margin: 0px auto;
+      width: 70%;
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+
     /* Footer Styles */
     .footer {
-      margin-top: 40px;
+      margin-top: 30px;
       text-align: center;
       font-size: 14px;
-      color: #666666;
-      border-top: 1px solid #eeeeee;
-      padding-top: 25px;
+      color: #667788;
+      border-top: 1px solid #eaeef5;
+      padding: 25px 35px 30px;
+      background-color: #f9fbff;
     }
 
     .footer p {
@@ -116,7 +152,7 @@
     }
 
     .footer a {
-      color: #2A5C8A;
+      color: #1a4da8;
       text-decoration: none;
       font-weight: 500;
     }
@@ -129,20 +165,24 @@
     @media (max-width: 640px) {
       .container {
         margin: 10px;
-        padding: 20px;
       }
       
       .header {
-        padding: 20px 15px;
+        padding: 25px 15px;
       }
       
       .content {
-        padding: 0 10px;
+        padding: 0 20px;
       }
       
       .verification-code {
         font-size: 18px;
-        padding: 12px 24px;
+        padding: 14px 25px;
+        word-break: break-all;
+      }
+      
+      .footer {
+        padding: 20px;
       }
     }
   </style>
@@ -151,13 +191,14 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <h1>Account Verification Required</h1>
+      <div class="logo">COMRADE HOMES</div>
+      <h1>Verify Your Account</h1>
     </div>
 
     <!-- Content -->
     <div class="content">
       <p>Hello {{username}},</p>
-      <p>Thank you for registering with Angel Real Estate. To activate your account, please use either the verification code or click the secure link below:</p>
+      <p>Thank you for choosing Comrade Homes. To activate your account and start exploring our premium property listings, please verify your email using either method below:</p>
 
       <div class="verification-section">
         <!-- Verification Code -->
@@ -165,20 +206,22 @@
         <div class="verification-code">{{verification_code}}</div>
 
         <!-- Verification Link -->
-        <p>Or click the button below to verify instantly:</p>
-        <a href="{{verification_link}}" class="verification-link">Verify My Account</a>
+        <p>Or simply click below for instant verification:</p>
+        <a href="{{verification_link}}" class="verification-link">Activate My Account</a>
       </div>
 
-      <p>This verification link will expire in 24 hours. If you didn't create this account, please ignore this email or contact our support team immediately.</p>
+      <p>This verification link will expire in 24 hours. If you did not create this account, please disregard this email or contact our support team immediately.</p>
 
-      <p>Need help? Visit our <a href="[Help Center URL]">Help Center</a> or reply to this email.</p>
+      <p>Questions? Visit our <a href="https://www.comradehomes.me/help">Help Center</a> or email us at <a href="mailto:support@comradehomes.me">support@comradehomes.me</a>.</p>
     </div>
+
+    <div class="divider"></div>
 
     <!-- Footer -->
     <div class="footer">
-      <p>Angel Real Estate &bull; 123 Secure Lane, Suite 456 &bull; Safetyville, ST 78900</p>
-      <p><a href="https://angelhouslistingwebsite.vercel.app/privacy&policy">Privacy Policy</a> &bull; <a href="https://angelhouslistingwebsite.vercel.app/terms">Terms of Service</a></p>
-      <p>&copy; 2025 Angel Real Estate. All rights reserved.</p>
+      <p>Comrade Homes &bull; Your trusted partner in finding the perfect home</p>
+      <p><a href="https://www.comradehomes.me/privacy">Privacy Policy</a> &bull; <a href="https://www.comradehomes.me/terms">Terms of Service</a></p>
+      <p>&copy; 2025 Comrade Homes. All rights reserved.</p>
       <p>This is an automated message - please do not reply directly</p>
     </div>
   </div>

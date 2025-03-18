@@ -12,10 +12,10 @@ from dotenv import load_dotenv
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from app import schemas
-from app.config import CONSUMER_KEY, CONSUMER_SECRET, MPESA_PASSKEY, MPESA_SHORTCODE, CALLBACK_URL, MPESA_BASE_URL,CALLBACK_URL_API_KEY
+from app.config import CONSUMER_KEY, CONSUMER_SECRET, MPESA_PASSKEY, MPESA_SHORTCODE, CALLBACK_URL, MPESA_BASE_URL,CALLBACK_URL_API_KEY,MPESA_PARTY_B
 from app.models import User,Transaction,TransactionType,TransactionStatus
-from app.routers.stripe_payments import get_optional_user
 from app.services.invoice import send_invoice
+from app.services.oauth import get_current_user_optional
 
 
 # Load environment variables
@@ -51,6 +51,7 @@ def generate_access_token() -> str:
             headers=headers,
         ).json()
         if "access_token" in response:
+            print("Token:", response["access_token"])
             return response["access_token"]
         raise HTTPException(status_code=500, detail="Access token missing in response.")
     except requests.RequestException as e:
@@ -63,8 +64,11 @@ def generate_access_token() -> str:
 def initiate_stk_push(
     payment_data: schemas.PaymentRequest, 
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_optional_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
+   
 ):
+    if current_user:
+        print(f"Processing payment for authenticated user: {current_user.id}")
     try:
         phone = format_phone_number(payment_data.phone_number)
         amount = payment_data.amount
@@ -148,21 +152,42 @@ def query_stk_push(request_data: schemas.STKQueryRequest):
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         password = base64.b64encode((MPESA_SHORTCODE + MPESA_PASSKEY + timestamp).encode()).decode()
+        
         request_body = {
             "BusinessShortCode": MPESA_SHORTCODE,
             "Password": password,
             "Timestamp": timestamp,
             "CheckoutRequestID": request_data.checkout_request_id,
         }
+
         response = requests.post(
             f"{MPESA_BASE_URL}/mpesa/stkpushquery/v1/query",
             json=request_body,
             headers=headers,
         ).json()
-        return response
+
+        result_code = response.get("ResultCode")
+        result_desc = response.get("ResultDesc", "Unknown error")
+
+        error_responses = {
+            "1037": "DS timeout: User cannot be reached.",
+            "1025": "System error occurred while sending the push request.",
+            "9999": "Error occurred while sending a push request.",
+            "1032": "Request was canceled by the user.",
+            "1": "Insufficient balance for the transaction.",
+            "2001": "Invalid initiator information.",
+            "1019": "Transaction has expired.",
+            "1001": "Transaction already in process for this subscriber."
+        }
+
+        if result_code == "0":
+            return {"message": "STK query successful", "response": response}
+
+        error_message = error_responses.get(result_code, f"Unknown error: {result_desc}")
+        raise HTTPException(status_code=400, detail=error_message)
+
     except requests.RequestException as e:
         raise HTTPException(status_code=500, detail=f"Error querying STK status: {str(e)}")
-
 
 
 # Define allowed IP addresses

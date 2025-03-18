@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,Form
+import asyncio
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status, UploadFile, File,Form
 from sqlalchemy.orm import Session
 from sqlalchemy import Integer, cast, func,literal
 from typing import List, Optional
@@ -31,195 +32,202 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_house(
-    title: str = Form(..., description="The title of the house listing"),
-    description: str = Form(..., description="A brief description of the house"),
-    price: str = Form(..., description="The price of the house"),
-    location: str = Form(..., description="The location of the house"),
-    room_count: str = Form(..., description="The number of rooms in the house"),
-    currency: Optional[str] = Form("Kes", description="Type of currency (default: Kes)"),
-    facebook: Optional[str] = Form(None, description="Facebook link"),
-    whatsapp: Optional[str] = Form(None, description="WhatsApp link"),
-    linkedin: Optional[str] = Form(None, description="LinkedIn link"),
-    country: Optional[str] = Form(None, description="Country where the house is situated."),
-    phone_number: Optional[str] = Form(None, description="House contact number"),
-    email: Optional[str] = Form(None, description="House contact email"),
-    type: schemas.HouseType = Form(..., description="The type of house (e.g., apartment, villa)"),
-    amenities: str = Form(..., description="Comma-separated list of amenities (e.g., Wi-Fi, parking)"),
+    background_tasks: BackgroundTasks,
+    house_data: schemas.HouseCreateUpdated = Depends(schemas.HouseCreateUpdated.as_form),  # Create a Pydantic model for input validation
     images: List[UploadFile] = File(..., description="Upload image files for the house"),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth.get_current_user),
 ):
-    logger.info(f"Received request to create house with title: {title}")
+    """Create a new house listing with images and notify admins."""
+    logger.info(f"Received request to create house with title: {house_data.title}")
     
-    # Ensure the user is logged in
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Must be logged in to create a listing")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Authentication required")
     
+    # Transaction validation
+    transaction = await validate_transaction(db, house_data.transaction_id)
+    
+    # Upload images concurrently
+    image_urls_list = await upload_images_concurrently(images)
+    if not image_urls_list:
+        raise HTTPException(status_code=400, detail="All image uploads failed. Please try again.")
+    
+    # Create house with transaction
     try:
-        # Validate room count
-        try:
-            int_room_count = int(room_count)
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid room count format")
+        new_house = await create_house_in_db(db, house_data, image_urls_list, current_user.id)
         
-        # Process amenities
-        amenities_list = [amenity.strip() for amenity in amenities.split(",") if amenity.strip()]
-        
-        # Upload images and gather URLs
-        image_urls_list = []
-        for image in images:
-            try:
-                image_url = await upload_image(image)
-                image_urls_list.append(image_url)
-            except Exception as e:
-                logger.error(f"Error uploading image {image.filename}: {e}")
-                continue  # Skip the failed image but continue processing others
-        
-        if not image_urls_list:
-            raise HTTPException(status_code=400, detail="All image uploads failed. Please try again.")
-        
-        # Save the new house to the database
-        new_house = models.House(
-            title=title,
-            description=description,
-            price=price,
-            location=location,
-            room_count=int_room_count,
-            email=email,
-            facebook=facebook,
-            linkedin=linkedin,
-            whatsapp=whatsapp,
-            country=country,
-            currency=currency,
-            phone_number=phone_number,
-            type=type,
-            amenities=amenities_list,
-            image_urls=image_urls_list,
-            owner_id=current_user.id,
-        )
-
-        db.add(new_house)
+        # Update transaction
+        transaction.house_id = new_house.id
+        transaction.user_id = current_user.id
         db.commit()
-        db.refresh(new_house)
         
-        # Convert new house to a dictionary for email
-        # Convert new house to a dictionary for email
-        def to_dict(obj):
-            if obj is None:
-                return {}
-            fields = {column.name: getattr(obj, column.name) for column in class_mapper(obj.__class__).columns}
-            return fields
-
-        house_in_dict = to_dict(new_house)
-        house_details = {
-            "id": house_in_dict['id'],  # Use key to access values
-            "title": house_in_dict['title'],
-            "description": house_in_dict['description'],
-            "price": house_in_dict['price'],
-            "location": house_in_dict['location'],
-            "room_count": house_in_dict['room_count'],
-             "type": house_in_dict['type'].value,  # Enum value, might need to use .value if it's an Enum
-            "amenities": house_in_dict['amenities'],
-            "image_urls": house_in_dict['image_urls'],
-            "created_at": house_in_dict['created_at'],
-            "updated_at": house_in_dict['updated_at'],
-            "owner_id": house_in_dict['owner_id'],
-            "is_approved": house_in_dict['is_approved'],
-            "availability": house_in_dict['availability'],
-           
-        }
-
-        # print('House Details:',house_details)
-
-        # Get admin emails
-        admin_users = db.query(models.User).filter(models.User.role == 'admin').all()
-        admin_emails = [user.email for user in admin_users]
-        logger.info(f"Admin emails: {admin_emails}")
-
-        # Get owner's email
-        owner_user = db.query(models.User).filter(models.User.id == new_house.owner_id).first()
-        owner_email = owner_user.email if owner_user else None
-        logger.info(f"Owner email: {owner_email}")
-
-        # Send email notification
-        try:
-            await send_house_notification_email(
-                admin_emails=admin_emails,
-                owner_email=owner_email,
-                owner_username=owner_user.username or owner_user.full_name,
-                id= house_in_dict['id'], 
-                title=  house_in_dict['title'],
-                description=  house_in_dict['description'],
-                price= house_in_dict['price'],
-                location= house_in_dict['location'],
-                room_count=house_in_dict['room_count'],
-                type=house_in_dict['type'].value,  
-                amenities= house_in_dict['amenities'],
-                image_urls=house_in_dict['image_urls'],
-                created_at=house_in_dict['created_at'],
-                updated_at=house_in_dict['updated_at'],
-                owner_id= house_in_dict['owner_id'],
-                is_approved= house_in_dict['is_approved'],
-            )
-        except Exception as e:
-            logger.error(f"Failed to send email notification: {e}")
-            raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail=f"Failed to send email: {e}")
-
-        # Fetch house details with likes and reviews
-        try:
-            house_details = (
-                db.query(
-                    models.House,
-                    func.count(models.Like.id).label("like_count"),
-                    func.array_agg(models.Review.comment).label("reviews"),
-                    func.count(models.Review.id).label("review_count")
-                )
-                .outerjoin(models.Like, models.Like.house_id == models.House.id)
-                .outerjoin(models.Review, models.Review.house_id == models.House.id)
-                .filter(models.House.id == new_house.id)
-                .group_by(models.House.id)
-                .first()
-            )
-            
-            if not house_details:
-                raise HTTPException(status_code=404, detail="House details could not be retrieved")
-            
-            house, like_count, reviews, review_count = house_details
-
-            return {
-                "house": {
-                    "id": house.id,
-                    "title": house.title,
-                    "description": house.description,
-                    "price": house.price,
-                    "location": house.location,
-                    "room_count": house.room_count,
-                    "type": house.type,
-                    "amenities": house.amenities,
-                    "image_urls": house.image_urls,
-                    "created_at": house.created_at,
-                    "updated_at": house.updated_at,
-                    "owner_id": house.owner_id,
-                    "is_approved": house.is_approved,
-                    "availability": house.availability,
-                },
-                "like_count": like_count or 0,
-                "review_count": review_count or 0,
-                "reviews": reviews or [],
-            }
-
-        except Exception as e:
-            logger.error(f"Error fetching house details: {e}")
-            raise HTTPException(status_code=500, detail=f"Error fetching house details: {str(e)}")
-    
-    except HTTPException as http_exc:
-        logger.error(f"HTTPException occurred: {http_exc}")
-        raise http_exc
+        # Send notifications asynchronously
+        background_tasks.add_task(
+            send_notifications,
+            db=db,
+            house=new_house,
+            owner_id=current_user.id
+        )
+        
+        # Return house with additional data
+        return await get_house_with_stats(db, new_house.id)
     
     except Exception as e:
         db.rollback()
-        logger.error(f"Unexpected error occurred: {e}")
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+        logger.error(f"Error creating house: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Helper functions
+async def validate_transaction(db: Session, transaction_id: str):
+    """Validate the transaction exists."""
+    transaction = db.query(models.Transaction).filter(models.Transaction.transaction_id == transaction_id).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail='Transaction not found')
+    return transaction
+
+async def upload_images_concurrently(images: List[UploadFile]) -> List[str]:
+    """Upload multiple images concurrently."""
+    # Create tasks for each image upload
+    upload_tasks = [upload_image(image) for image in images]
+    
+    # Run uploads concurrently
+    results = await asyncio.gather(*upload_tasks, return_exceptions=True)
+    
+    # Filter out exceptions and log errors
+    image_urls = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"Error uploading image {i}: {result}")
+        else:
+            image_urls.append(result)
+    
+    return image_urls
+
+async def create_house_in_db(db: Session, house_data: schemas.HouseCreate, image_urls: List[str], owner_id: int) -> models.House:
+    """Create a new house record in the database."""
+    # Process amenities
+    amenities_list = [amenity.strip() for amenity in house_data.amenities.split(",") if amenity.strip()]
+    
+    new_house = models.House(
+        title=house_data.title,
+        description=house_data.description,
+        price=house_data.price,
+        deposit=house_data.deposit,
+        location=house_data.location,
+        room_count=house_data.room_count,
+        email=house_data.email,
+        facebook=house_data.facebook,
+        linkedin=house_data.linkedin,
+        whatsapp=house_data.whatsapp,
+        country=house_data.country,
+        currency=house_data.currency,
+        phone_number=house_data.phone_number,
+        type=house_data.type,
+        amenities=amenities_list,
+        image_urls=image_urls,
+        owner_id=owner_id,
+    )
+    
+    db.add(new_house)
+    db.commit()
+    db.refresh(new_house)
+    return new_house
+
+async def send_notifications(db: Session, house: models.House, owner_id: int):
+    """Send email notifications about the new house listing."""
+    try:
+        # Get admin emails
+        admin_users = db.query(models.User).filter(models.User.role == 'admin').all()
+        admin_emails = [user.email for user in admin_users]
+        logger.info(f"Found {len(admin_emails)} admin emails for notification")
+        
+        # Get owner's email
+        owner_user = db.query(models.User).filter(models.User.id == owner_id).first()
+        if not owner_user:
+            logger.error(f"Owner user with ID {owner_id} not found")
+            return
+            
+        owner_email = owner_user.email
+        owner_name = owner_user.username or owner_user.full_name
+        logger.info(f"Preparing to send email notification to owner: {owner_email}")
+        
+        # Convert house to dictionary for the email
+        house_dict = {
+            "id": house.id,
+            "title": house.title,
+            "description": house.description,
+            "price": house.price,
+            "location": house.location,
+            "room_count": house.room_count,
+            "type": house.type.value if hasattr(house.type, 'value') else house.type,
+            "amenities": house.amenities,
+            "image_urls": house.image_urls,
+            "created_at": house.created_at,
+            "updated_at": house.updated_at,
+            "owner_id": house.owner_id,
+            "is_approved": house.is_approved,
+        }
+        
+        email_result = await send_house_notification_email(
+            admin_emails=admin_emails,
+            owner_email=owner_email,
+            owner_username=owner_name,
+            **house_dict
+        )
+        
+        if email_result:
+            logger.info(f"Email notifications sent successfully for house ID: {house.id}")
+        else:
+            logger.warning(f"Email sending returned False for house ID: {house.id}")
+        
+    except Exception as e:
+        logger.error(f"Failed to send email notification: {e}", exc_info=True)  # Include traceback
+        # Don't raise exception here since this is in a background task
+
+async def get_house_with_stats(db: Session, house_id: int) -> dict:
+    """Fetch house details with likes and reviews."""
+    house_details = (
+        db.query(
+            models.House,
+            func.count(models.Like.id).label("like_count"),
+            func.array_agg(models.Review.comment).label("reviews"),
+            func.count(models.Review.id).label("review_count")
+        )
+        .outerjoin(models.Like, models.Like.house_id == models.House.id)
+        .outerjoin(models.Review, models.Review.house_id == models.House.id)
+        .filter(models.House.id == house_id)
+        .group_by(models.House.id)
+        .first()
+    )
+    
+    if not house_details:
+        raise HTTPException(status_code=404, detail="House details could not be retrieved")
+    
+    house, like_count, reviews, review_count = house_details
+    
+    return {
+        "house": {
+            "id": house.id,
+            "title": house.title,
+            "description": house.description,
+            "price": house.price,
+            "location": house.location,
+            "room_count": house.room_count,
+            "type": house.type,
+            "deposit": house.deposit,
+            "currency":house.currency,
+            "amenities": house.amenities,
+            "image_urls": house.image_urls,
+            "created_at": house.created_at,
+            "updated_at": house.updated_at,
+            "owner_id": house.owner_id,
+            "is_approved": house.is_approved,
+            "availability": house.availability,
+        },
+        "like_count": like_count or 0,
+        "review_count": review_count or 0,
+        "reviews": reviews or [],
+    }
 
 
 
@@ -322,6 +330,8 @@ def list_houses(
                 "amenities": house.amenities,
                 "image_urls": house.image_urls,
                 "created_at": house.created_at,
+                "deposit": house.deposit,
+                "currency":house.currency,
                 "updated_at": house.updated_at,
                 "owner_id": house.owner_id,
                 "owner": owner_dict.get(house.owner_id),  # Owner data
@@ -359,7 +369,7 @@ def get_house(house_id: int, db: Session = Depends(get_db)):
             func.count(models.Like.id).label("like_count"),
         )
         .outerjoin(models.Like, models.Like.house_id == models.House.id)
-        .filter(models.House.id == house_id)
+        .filter(models.House.id == house_id and models.House.is_approved == True)
         .group_by(models.House.id)
         .limit(1)
         .first()
@@ -382,6 +392,19 @@ def get_house(house_id: int, db: Session = Depends(get_db)):
         "images": house.image_urls or ["/placeholder.svg?height=400&width=600"],
         "bedrooms": house.room_count or 0,
         "amenities": house.amenities or [],
+        'created_at':house.created_at,
+        'updated_at':house.updated_at or "No update available",
+        "availability":house.availability or "No availability provided",
+        "whatsapp":house.whatsapp,
+        "deposit":house.deposit,
+        "phone_number":house.phone_number or "No phone number provided",
+        "facebook":house.facebook,
+        "linkedin":house.linkedin ,
+        "email":house.email or "No email provided",
+        "country":house.country or "No country provided",
+        "currency":house.currency or "Kes",
+        "remaining_rooms":house.remaining_rooms or 0,
+        "type": house.type or "No type specified",
         "owner": {
             'id': house.owner.id,
             'role': house.owner.role,
@@ -404,6 +427,7 @@ async def update_house(
     title: Optional[str] = Form(None),
     location: Optional[str] = Form(None),
     price: Optional[str] = Form(None),
+    deposit: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     amenities: Optional[str] = Form(None),
     room_count: Optional[str] = Form(None),
@@ -442,6 +466,17 @@ async def update_house(
                     raise ValueError("Price must be a positive number")
                 db_house.price = price_val  # Store as string but validate as number
                 updates_made = True
+
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=f"Invalid price: {str(e)}")
+        if deposit is not None:
+            try:
+                deposit_val = float(deposit)
+                if deposit_val <= 0:
+                    raise ValueError("Price must be a positive number")
+                db_house.deposit = deposit_val  # Store as string but validate as number
+                updates_made = True
+
             except ValueError as e:
                 raise HTTPException(status_code=400, detail=f"Invalid price: {str(e)}")
 
@@ -730,6 +765,8 @@ def get_user_houses(
                 "created_at": house.created_at,
                 "updated_at": house.updated_at,
                 "owner_id": house.owner_id,
+                "deposit":house.deposit,
+                "currency":house.currency or 'Kes',
                 "is_approved": house.is_approved,
                 "availability": house.availability,
                 "ImageUrl": house.image_urls[0] if house.image_urls else None,
@@ -809,6 +846,8 @@ def get_user_houses(
                 "location": house.location,
                 "room_count": house.room_count,
                 "type": house.type,
+                "deposit":house.deposit,
+                "currency":house.currency or "Kes",
                 "amenities": house.amenities,
                 "image_urls": house.image_urls,
                 "created_at": house.created_at,

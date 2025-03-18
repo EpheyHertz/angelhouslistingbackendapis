@@ -428,3 +428,146 @@ class PaymentResponseStripe(BaseModel):
     charge_id: Optional[str] = Field(None, description="Stripe charge ID")
     transaction_id: Optional[int] = Field(None, description="Database transaction ID")
     message: Optional[str] = Field(None, description="Error message or additional information")
+
+
+from typing import Optional, List, Union
+from enum import Enum
+from pydantic import BaseModel, Field,  EmailStr
+from fastapi import Form, UploadFile, File, Depends
+from datetime import datetime
+
+
+class HouseCreateUpdated(BaseModel):
+    title: str = Field(..., description="The title of the house listing", min_length=5, max_length=100)
+    description: str = Field(..., description="A brief description of the house", min_length=20)
+    price: str = Field(..., description="The price of the house")
+    deposit: str = Field(..., description="The refundable deposit of the house")
+    location: str = Field(..., description="The location of the house", min_length=3)
+    room_count: int = Field(..., description="The number of rooms in the house", gt=0)
+    transaction_id: str = Field(..., description="Transaction id for the house")
+    currency: str = Field("Kes", description="Type of currency (default: Kes)")
+    facebook: Optional[str] = Field(None, description="Facebook link")
+    whatsapp: Optional[str] = Field(None, description="WhatsApp link")
+    linkedin: Optional[str] = Field(None, description="LinkedIn link")
+    country: Optional[str] = Field(None, description="Country where the house is situated")
+    phone_number: Optional[str] = Field(None, description="House contact number")
+    email: Optional[EmailStr] = Field(None, description="House contact email")
+    type: HouseType = Field(..., description="The type of house (e.g., apartment, villa)")
+    amenities: str = Field(..., description="Comma-separated list of amenities (e.g., Wi-Fi, parking)")
+    availability: bool = Field(True, description="Whether the house is available for rent/sale")
+    
+    # Additional optional fields that might be useful
+    bedrooms: Optional[int] = Field(None, description="Number of bedrooms", gt=0)
+    bathrooms: Optional[int] = Field(None, description="Number of bathrooms", gt=0)
+    square_footage: Optional[int] = Field(None, description="Size of the house in square feet", gt=0)
+    year_built: Optional[int] = Field(None, description="Year the house was built")
+    parking_spots: Optional[int] = Field(None, description="Number of parking spots", ge=0)
+    pet_friendly: Optional[bool] = Field(None, description="Whether the house is pet-friendly")
+    furnished: Optional[bool] = Field(None, description="Whether the house is furnished")
+    sale_type: Optional[str] = Field(None, description="Type of sale (e.g., rent, sale, lease)")
+    
+    @field_validator('email')
+    def validate_email(cls, v):
+        if v is not None and not v:
+            return None
+        return v
+    
+    @field_validator('phone_number')
+    def validate_phone(cls, v):
+        if v is not None:
+            # Remove any non-digit characters for validation
+            digits_only = ''.join(filter(str.isdigit, v))
+            if len(digits_only) < 8:  # Assuming minimum phone length
+                raise ValueError('Phone number must have at least 8 digits')
+        return v
+    
+    @field_validator('amenities')
+    def validate_amenities(cls, v):
+        if not v.strip():
+            raise ValueError('Amenities list cannot be empty')
+        return v
+    
+    @classmethod
+    def as_form(
+        cls,
+        title: str = Form(..., description="The title of the house listing"),
+        description: str = Form(..., description="A brief description of the house"),
+        price: str = Form(..., description="The price of the house"),
+        location: str = Form(..., description="The location of the house"),
+        deposit: str = Field(..., description="The refundable deposit of the house"),
+        room_count: int = Form(..., description="The number of rooms in the house"),
+        transaction_id: str = Form(..., description="Transaction id for the house"),
+        currency: str = Form("Kes", description="Type of currency (default: Kes)"),
+        facebook: Optional[str] = Form(None, description="Facebook link"),
+        whatsapp: Optional[str] = Form(None, description="WhatsApp link"),
+        linkedin: Optional[str] = Form(None, description="LinkedIn link"),
+        country: Optional[str] = Form(None, description="Country where the house is situated"),
+        phone_number: Optional[str] = Form(None, description="House contact number"),
+        email: Optional[str] = Form(None, description="House contact email"),
+        type: HouseType = Form(..., description="The type of house"),
+        amenities: str = Form(..., description="Comma-separated list of amenities"),
+        availability: bool = Form(True, description="Whether the house is available"),
+        bedrooms: Optional[int] = Form(None, description="Number of bedrooms"),
+        bathrooms: Optional[int] = Form(None, description="Number of bathrooms"),
+        square_footage: Optional[int] = Form(None, description="Size in square feet"),
+        year_built: Optional[int] = Form(None, description="Year the house was built"),
+        parking_spots: Optional[int] = Form(None, description="Number of parking spots"),
+        pet_friendly: Optional[bool] = Form(None, description="Whether pet-friendly"),
+        furnished: Optional[bool] = Form(None, description="Whether furnished"),
+        sale_type: Optional[str] = Form(None, description="Type of sale")
+    ):
+        return cls(
+            title=title,
+            description=description,
+            price=price,
+            deposit=deposit,
+            location=location,
+            room_count=room_count,
+            transaction_id=transaction_id,
+            currency=currency,
+            facebook=facebook,
+            whatsapp=whatsapp,
+            linkedin=linkedin,
+            country=country,
+            phone_number=phone_number,
+            email=email,
+            type=type,
+            amenities=amenities,
+            availability=availability,
+            bedrooms=bedrooms,
+            bathrooms=bathrooms,
+            square_footage=square_footage,
+            year_built=year_built,
+            parking_spots=parking_spots,
+            pet_friendly=pet_friendly,
+            furnished=furnished,
+            sale_type=sale_type
+        )
+    
+    class Config:
+        form_attributes = True
+        json_schema_extra = {
+            "example": {
+                "title": "Beautiful 3-Bedroom Apartment in Westlands",
+                "description": "Modern apartment with spacious living area, fully equipped kitchen, and balcony with city views.",
+                "price": "35000",
+                "deposit": "350",
+                "location": "Westlands, Nairobi",
+                "room_count": 5,
+                "transaction_id": "TRX123456789",
+                "currency": "Kes",
+                "country": "Kenya",
+                "phone_number": "+254712345678",
+                "email": "contact@example.com",
+                "type": "apartment",
+                "amenities": "Wi-Fi, Parking, Security, Swimming Pool, Gym",
+                "bedrooms": 3,
+                "bathrooms": 2,
+                "square_footage": 1200,
+                "year_built": 2020,
+                "parking_spots": 1,
+                "pet_friendly": True,
+                "furnished": True,
+                "sale_type": "rent"
+            }
+        }

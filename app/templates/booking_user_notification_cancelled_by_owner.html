@@ -6,10 +6,12 @@
     <title>Booking Cancellation Notification</title>
     <style>
         body {
-            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
         }
         .email-wrapper {
             max-width: 680px;
@@ -17,12 +19,10 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
         }
         .header {
-            background: linear-gradient(rgba(0, 44, 95, 0.8), rgba(0, 44, 95, 0.8)),
-                        url('https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
+            background-color: #0d47a1;
             padding: 40px;
             text-align: center;
             color: white;
@@ -31,17 +31,18 @@
             padding: 40px;
         }
         .cancellation-alert {
-            background: #fff0f0;
-            border-left: 4px solid #dc3545;
+            background: #f5f5f5;
+            border-left: 4px solid #1e88e5;
             padding: 20px;
             margin: 24px 0;
             border-radius: 4px;
         }
         .detail-card {
-            background: #f8f9fa;
+            background: #f5f7fa;
             border-radius: 8px;
             padding: 24px;
             margin: 32px 0;
+            border: 1px solid #e0e6ed;
         }
         .detail-grid {
             display: grid;
@@ -53,112 +54,132 @@
             align-items: center;
             margin: 12px 0;
         }
-        .detail-icon {
+        .detail-item img {
             width: 24px;
+            height: 24px;
             margin-right: 12px;
-            opacity: 0.8;
         }
         .property-image {
             width: 100%;
             border-radius: 8px;
             margin: 24px 0;
+            height: 200px;
+            background-color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #666;
         }
         .cta-button {
             display: inline-block;
-            background: #dc3545;
-            color: white!important;
+            background-color: #1e88e5;
+            color: white;
             padding: 14px 36px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
             margin: 24px 0;
-            transition: background 0.3s ease;
-        }
-        .cta-button:hover {
-            background: #bb2d3b;
         }
         .footer {
             text-align: center;
-            padding: 32px;
-            background: #002c5f;
+            padding: 28px;
+            background: #0d47a1;
             color: white;
+        }
+        .footer a {
+            color: #fff;
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .header, .content {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="email-wrapper">
         <div class="header">
-            <h1 style="margin:0;font-size:26px;">Booking Cancellation Notification</h1>
-            <p style="opacity:0.9;margin-top:8px;">Property: {{house_title}}</p>
+            <img src="https://www.comradehomes.me/favicon.ico" alt="Comrade Homes Logo" style="width:64px;height:64px;">
+            <h1 style="margin:16px 0 8px 0;font-size:26px;">Booking Cancellation Notice</h1>
+            <p style="opacity:0.9;margin-top:8px;font-size:16px;">Property: {{house_title}}</p>
         </div>
 
         <div class="content">
             <div class="cancellation-alert">
-                <h3 style="margin:0;color:#dc3545;">Cancellation Confirmed</h3>
+                <h3 style="margin:0;color:#1e88e5;">Cancellation Confirmed</h3>
                 <p style="margin:8px 0 0 0;">Booking ID: #{{booking_id}}</p>
             </div>
 
             <p>Dear <strong>{{username}}</strong>,</p>
-            <p>We regret to inform you that the following booking has been canceled by the guest:</p>
+            <p>We're informing you that the following booking has been canceled by the guest:</p>
 
-            <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                 alt="{{house_title}}" 
-                 class="property-image">
+            <div class="property-image">
+                Property Image: {{house_title}}
+            </div>
 
             <div class="detail-card">
                 <div class="detail-grid">
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/user.png" class="detail-icon" alt="Guest">
+                        <img src="/api/placeholder/24/24" alt="Guest">
                         <div>
                             <strong>Guest Name:</strong><br>
                             {{guest_name}}
                         </div>
                     </div>
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/calendar--v1.png" class="detail-icon" alt="Dates">
+                        <img src="/api/placeholder/24/24" alt="Dates">
                         <div>
                             <strong>Dates:</strong><br>
                             {{start_date}} – {{end_date}}
                         </div>
                     </div>
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/door.png" class="detail-icon" alt="Rooms">
+                        <img src="/api/placeholder/24/24" alt="Rooms">
                         <div>
                             <strong>Rooms:</strong><br>
                             {{rooms_no}} rooms
                         </div>
                     </div>
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/refund.png" class="detail-icon" alt="Status">
+                        <img src="/api/placeholder/24/24" alt="Status">
                         <div>
                             <strong>Status:</strong><br>
-                            <span style="color:#dc3545;">Cancelled</span>
+                            <span style="color:#1e88e5;">Cancelled</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <p style="color:#666;">Our team has been notified of this cancellation. We recommend:</p>
-            <ul style="color:#666;padding-left:20px;">
+            <p style="color:#555;">Our team has been notified of this cancellation. We recommend:</p>
+            <ul style="color:#555;padding-left:20px;">
                 <li>Updating your property availability calendar</li>
-                <li>Reviewing cancellation policy compliance</li>
+                <li>Reviewing cancellation policy details</li>
                 <li>Contacting our support team for any questions</li>
             </ul>
 
-            <center>
-                <a href="https://angelhouslistingwebsite.vercel.app/" class="cta-button">Manage Property Listing</a>
-            </center>
+            <div style="text-align:center;margin-top:25px;">
+                <a href="https://www.comradehomes.me/dashboard" class="cta-button" style="background-color:#1e88e5;color:white;text-decoration:none;padding:14px 36px;border-radius:8px;font-weight:600;display:inline-block;">
+                    Manage Your Property
+                </a>
+            </div>
         </div>
 
         <div class="footer">
-            <p style="margin:0;font-size:14px;">Angel House Listing Team</p>
-            <p style="margin:8px 0;font-size:12px;opacity:0.9;">
-                📞 +254 700086852 | ✉️ support@angelhousing.com<br>
-                <a href="{{unsubscribe_url}}" style="color:#fff;opacity:0.8;text-decoration:none;">Unsubscribe</a> 
-                | 
-                <a href="https://angelhouslistingwebsite.vercel.app/privacy&policy" style="color:#fff;opacity:0.8;text-decoration:none;">Privacy Policy</a>
+            <p style="margin:0;font-size:15px;font-weight:600;">Comrade Homes</p>
+            <p style="margin:8px 0;font-size:13px;">
+                Contact: +254 700086852 | <a href="mailto:support@comradehomes.me" style="color:white;">support@comradehomes.me</a>
             </p>
-            <p style="margin:0;font-size:12px;opacity:0.7;">© 2025 Angel House Listing. All rights reserved.</p>
+            <div style="margin:15px 0;">
+                <a href="https://www.comradehomes.me/privacy&policy" style="margin:0 10px;font-size:13px;color:white;">Privacy Policy</a> 
+                | 
+                <a href="https://www.comradehomes.me/terms" style="margin:0 10px;font-size:13px;color:white;">Terms</a>
+            </div>
+            <p style="margin:10px 0 0 0;font-size:12px;opacity:0.8;">© 2025 Comrade Homes. All rights reserved.</p>
         </div>
     </div>
 </body>

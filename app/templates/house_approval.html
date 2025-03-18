@@ -6,10 +6,12 @@
     <title>Listing Status Update - {{ house_title }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
         }
         .email-wrapper {
             max-width: 640px;
@@ -17,69 +19,71 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
         }
         .header {
-            background: linear-gradient(135deg, {{ status == 'approved' ? '#4CAF50' : '#dc3545' }} 0%, {{ status == 'approved' ? '#388E3C' : '#bb2d3b' }} 100%);
-            padding: 40px;
+            background-color: #1e88e5;
+            padding: 35px;
             text-align: center;
             color: white;
         }
+        .header img {
+            width: 64px;
+            height: 64px;
+        }
         .content {
-            padding: 40px;
+            padding: 35px;
         }
         .status-card {
-            background: #f8f9fa;
+            background: #f5f7fa;
             border-radius: 8px;
             padding: 24px;
-            margin: 32px 0;
-            text-align: center;
+            margin: 24px 0;
+            border: 1px solid #e0e6ed;
         }
         .detail-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
-            margin: 24px 0;
+            margin: 20px 0;
         }
         .detail-item {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .status-icon {
-            width: 48px;
-            height: 48px;
+        .detail-item img {
+            width: 24px;
+            height: 24px;
         }
         .cta-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: {{ status == 'approved' ? '#4CAF50' : '#dc3545' }};
-            color: white!important;
-            padding: 14px 36px;
-            border-radius: 8px;
+            display: inline-block;
+            background-color: #1e88e5;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
-            transition: transform 0.2s ease;
-        }
-        .cta-button:hover {
-            transform: translateY(-2px);
+            margin-top: 8px;
+            font-size: 16px;
+            border: none;
         }
         .footer {
             text-align: center;
-            padding: 32px;
-            background: #002c5f;
+            padding: 28px;
+            background: #0d47a1;
             color: white;
+        }
+        .footer a {
+            color: #fff;
+            text-decoration: underline;
         }
         @media (max-width: 600px) {
             .detail-grid {
                 grid-template-columns: 1fr;
             }
-            .header {
-                padding: 30px 20px;
-            }
-            .content {
-                padding: 30px 20px;
+            .header, .content {
+                padding: 25px 20px;
             }
         }
     </style>
@@ -87,62 +91,65 @@
 <body>
     <div class="email-wrapper">
         <div class="header">
-            <img src="{{ status == 'approved' ? 'https://img.icons8.com/color/96/checked--v1.png' : 'https://img.icons8.com/color/96/high-priority.png' }}" 
-                 alt="Status" 
-                 class="status-icon">
-            <h1 style="margin:16px 0 8px 0;">Listing {{ status|capitalize }}!</h1>
-            <p style="opacity:0.9;">{{ house_title }}</p>
+            <img src="/api/placeholder/64/64" alt="Comrade Homes Logo">
+            <h1 style="margin:16px 0 8px 0;">Listing {{ status|capitalize }}</h1>
+            <p style="opacity:0.9;font-size:16px;">{{ house_title }}</p>
         </div>
 
         <div class="content">
-            <h2 style="margin:0 0 16px 0;">Dear Property Owner,</h2>
-            <p style="color:#666;font-size:16px;">Your listing <strong>"{{ house_title }}"</strong> has been <strong>{{ status }}</strong> by our review team.</p>
+            <h2 style="margin:0 0 16px 0;color:#0d47a1;">Hello,</h2>
+            <p>We're pleased to inform you that your property listing <strong>"{{ house_title }}"</strong> has been <strong>{{ status }}</strong> by our review team.</p>
 
             <div class="status-card">
                 <div class="detail-grid">
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/calendar--v1.png" alt="Date">
+                        <img src="/api/placeholder/24/24" alt="Calendar">
                         <div>
                             <strong>Decision Date:</strong><br>
                             {{ date_today }}
                         </div>
                     </div>
                     <div class="detail-item">
-                        <img src="https://img.icons8.com/color/48/approval.png" alt="Status">
+                        <img src="/api/placeholder/24/24" alt="Status">
                         <div>
                             <strong>Current Status:</strong><br>
-                            <span style="color:{{ status == 'approved' ? '#4CAF50' : '#dc3545' }};">{{ status|capitalize }}</span>
+                            <span style="color:{{ status == 'approved' ? '#1e88e5' : '#e53935' }};">{{ status|capitalize }}</span>
                         </div>
                     </div>
                 </div>
 
                 {% if status == 'rejected' %}
-                <div style="text-align:left;margin-top:20px;">
-                    <h4 style="margin:0 0 12px 0;">📌 Admin Remarks:</h4>
-                    <p style="color:#666;background:#fff;padding:16px;border-radius:8px;">
+                <div style="margin-top:20px;">
+                    <h4 style="margin:0 0 12px 0;color:#0d47a1;">Review Notes:</h4>
+                    <p style="background:#fff;padding:16px;border-radius:8px;border:1px solid #e0e6ed;">
                         {{ admin_remarks }}
                     </p>
                 </div>
                 {% endif %}
             </div>
 
-            <center>
-                <a href="https://angelhouslistingwebsite.vercel.app/dashboard" class="cta-button">
-                    <img src="https://img.icons8.com/color/24/dashboard.png" alt="Dashboard">
-                    View Your Dashboard
+            <p>You can check your listing details and make any necessary updates through your personal dashboard.</p>
+
+            <div style="text-align:center;margin-top:25px;margin-bottom:25px;">
+                <a href="https://www.comradehomes.me/dashboard" class="cta-button" style="background-color:#1e88e5;color:white;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:600;display:inline-block;">
+                    Access Your Dashboard
                 </a>
-            </center>
+            </div>
+
+            <p style="margin-top:25px;font-size:14px;color:#555;">If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
         </div>
 
         <div class="footer">
-            <p style="margin:0;font-size:14px;">Angel House Listing Team</p>
-            <p style="margin:8px 0;font-size:12px;opacity:0.9;">
-                📞 +254 700086852 | ✉️ support@angelhousing.com<br>
-                <a href="https://angelhouslistingwebsite.vercel.app/privacy&policy" style="color:#fff;opacity:0.8;text-decoration:none;">Privacy Policy</a> 
-                | 
-                <a href="https://angelhouslistingwebsite.vercel.app/terms" style="color:#fff;opacity:0.8;text-decoration:none;">Unsubscribe</a>
+            <p style="margin:0;font-size:15px;font-weight:600;">Comrade Homes</p>
+            <p style="margin:8px 0;font-size:13px;">
+                Contact: +254 700086852 | <a href="mailto:support@comradehomes.me" style="color:white;">support@comradehomes.me</a>
             </p>
-            <p style="margin:16px 0 0 0;font-size:12px;opacity:0.7;">© 2024 Angel House Listing Platform. All rights reserved.</p>
+            <div style="margin:15px 0;">
+                <a href="https://www.comradehomes.me/privacy-policy" style="margin:0 10px;font-size:13px;color:white;">Privacy Policy</a> 
+                | 
+                <a href="https://www.comradehomes.me/preferences" style="margin:0 10px;font-size:13px;color:white;">Email Preferences</a>
+            </div>
+            <p style="margin:10px 0 0 0;font-size:12px;opacity:0.8;">© 2025 Comrade Homes. All rights reserved.</p>
         </div>
     </div>
 </body>

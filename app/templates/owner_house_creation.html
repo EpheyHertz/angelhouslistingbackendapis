@@ -3,73 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listing Submission Confirmation</title>
+    <title>Comrade Homes: Listing Submission Confirmation</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f5f5f5; padding: 20px; }
+        body { background: #f3f4f6; padding: 20px; font-family: 'Montserrat', sans-serif; }
         .email-container {
             max-width: 680px;
             margin: 0 auto;
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
         .header {
-            background: linear-gradient(135deg, #2ECC71, #27ae60);
+            background: linear-gradient(135deg, #e63946, #d62828);
             padding: 40px;
             text-align: center;
             color: white;
         }
-        .content { padding: 35px; color: #444; }
+        .logo-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logo-icon {
+            font-size: 32px;
+            margin-right: 15px;
+        }
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .content { padding: 35px; color: #333; }
         .status-box {
             background: #f8f9fa;
-            border-radius: 8px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 30px;
             margin: 20px 0;
             border: 1px solid #e0e0e0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
         .detail-row {
             display: flex;
             align-items: center;
-            margin: 12px 0;
-            padding: 10px;
+            margin: 15px 0;
+            padding: 15px;
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease;
         }
-        .detail-icon { width: 30px; color: #27ae60; margin-right: 15px; }
+        .detail-row:hover {
+            transform: translateY(-2px);
+        }
+        .detail-icon { width: 30px; color: #e63946; margin-right: 18px; }
         .detail-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
-            margin: 20px 0;
+            margin: 25px 0;
         }
         .grid-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+        }
+        .grid-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
         .amenities-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 20px;
         }
         .amenity-pill {
-            background: #e8f5e9;
-            padding: 6px 15px;
+            background: #ffebee;
+            padding: 8px 18px;
             border-radius: 20px;
             font-size: 0.9em;
+            color: #d32f2f;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .amenity-pill:hover {
+            background: #ffcdd2;
+            transform: translateY(-2px);
+        }
+        .cta-button {
+            display: inline-block;
+            background: #e63946;
+            color: white;
+            padding: 12px 30px;
+            margin-top: 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(230, 57, 70, 0.3);
+        }
+        .cta-button:hover {
+            background: #d32f2f;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(230, 57, 70, 0.4);
         }
         .footer {
             text-align: center;
-            padding: 25px;
+            padding: 30px;
             background: #f8f9fa;
-            color: #666;
+            color: #555;
             font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+        .social-links {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e63946;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .social-icon:hover {
+            transform: translateY(-3px);
+            background: #d32f2f;
+        }
+        @media (max-width: 600px) {
+            .content, .header, .footer { padding: 20px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .logo-text { font-size: 24px; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -77,14 +155,17 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <i class="fas fa-check-circle fa-3x"></i>
-            <h1 style="margin-top: 15px;">Listing Received!</h1>
+            <div class="logo-area">
+                <i class="fas fa-building logo-icon"></i>
+                <div class="logo-text">COMRADE HOMES</div>
+            </div>
+            <h1 style="margin-top: 15px;">Listing Successfully Received!</h1>
         </div>
 
         <div class="content">
-            <p>Hello {{username}},</p>
+            <p style="font-size: 1.1em;">Hello {{username}},</p>
             <div class="status-box">
-                <h3 style="margin-bottom: 20px;">🏡 {{title}}</h3>
+                <h3 style="margin-bottom: 20px; font-size: 1.4em; color: #e63946;">🏡 {{title}}</h3>
                 
                 <div class="detail-row">
                     <i class="fas fa-hashtag detail-icon"></i>
@@ -109,35 +190,54 @@
 
                 <div class="detail-grid">
                     <div class="grid-item">
-                        <i class="fas fa-home fa-lg"></i>
-                        <p style="margin-top: 8px;"><strong>{{type}}</strong></p>
+                        <i class="fas fa-home fa-lg" style="color: #e63946;"></i>
+                        <p style="margin-top: 12px; font-weight: 600;">{{type}}</p>
                     </div>
                     <div class="grid-item">
-                        <i class="fas fa-door-open fa-lg"></i>
-                        <p style="margin-top: 8px;"><strong>{{room_count}} Rooms</strong></p>
+                        <i class="fas fa-door-open fa-lg" style="color: #e63946;"></i>
+                        <p style="margin-top: 12px; font-weight: 600;">{{room_count}} Rooms</p>
+                    </div>
+                    <div class="grid-item">
+                        <i class="fas fa-calendar-check fa-lg" style="color: #e63946;"></i>
+                        <p style="margin-top: 12px; font-weight: 600;">Ready to Move</p>
                     </div>
                 </div>
 
-                <h4 style="margin: 20px 0 10px;">Amenities</h4>
+                <h4 style="margin: 25px 0 15px; color: #e63946;">Included Amenities</h4>
                 <div class="amenities-list">
                     {% for amenity in amenities %}
                     <span class="amenity-pill">{{amenity}}</span>
                     {% endfor %}
                 </div>
 
-                <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
-                    Submitted on: {{created_at}}
+                <p style="margin-top: 25px; color: #666; font-size: 0.9em;">
+                    Submission Date: {{created_at}}
                 </p>
             </div>
 
-            <p style="margin-top: 20px; line-height: 1.6;">
-                Our team is reviewing your submission. You'll receive another email once your listing is approved and published. This process typically takes 24-48 hours.
+            <p style="margin-top: 25px; line-height: 1.8; font-size: 1.05em;">
+                Thank you for choosing Comrade Homes for your property listing. Our dedicated team is currently reviewing your submission to ensure it meets our quality standards. You'll receive a confirmation email once your listing is approved and published on our platform.
             </p>
+            
+            <p style="margin-top: 15px; line-height: 1.8; font-size: 1.05em;">
+                The review process typically takes 24-48 hours. If you have any questions or need to make changes to your listing, please don't hesitate to reach out to our support team.
+            </p>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="https://www.comradehomes.me/dashboard" class="cta-button">View Your Dashboard</a>
+            </div>
         </div>
 
         <div class="footer">
-            <p>© 2025 Angel HouseListing. All rights reserved.</p>
-            <p style="margin-top: 8px;">Need assistance? Contact us at support@angelhousing.com</p>
+            <div class="social-links">
+                <a href="https://facebook.com/comradehomes" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://twitter.com/comradehomes" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="https://instagram.com/comradehomes" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="https://linkedin.com/company/comradehomes" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p><a href="https://www.comradehomes.me" style="color: #e63946; text-decoration: none; font-weight: 600;">www.comradehomes.me</a></p>
+            <p style="margin-top: 12px;">© 2025 Comrade Homes. All rights reserved.</p>
+            <p style="margin-top: 12px;">Need assistance? Contact us at <a href="mailto:support@comradehomes.me" style="color: #e63946; text-decoration: none; font-weight: 600;">support@comradehomes.me</a></p>
         </div>
     </div>
 </body>

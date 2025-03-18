@@ -7,7 +7,7 @@ from app.config import TEST_STRIPE_PUBLIC_KEY, TEST_STRIPE_SECRET_KEY
 from app.models import Transaction, TransactionType,User,TransactionStatus
 from app.database import get_db
 from app.schemas import PaymentRequestStripe, PaymentResponseStripe
-from app.services.oauth import get_current_user
+from app.services.oauth import get_current_user,get_current_user_optional
 from app.services.invoice import send_invoice
 
 # Configure Stripe with your secret key
@@ -18,14 +18,13 @@ router = APIRouter(prefix="/payments", tags=["Stripe Payments"])
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def get_optional_user(current_user = Depends(get_current_user)):
-    return current_user
+
 
 @router.post("/process-payment/", response_model=PaymentResponseStripe, status_code=status.HTTP_200_OK)
 async def process_payment(
     payment: PaymentRequestStripe, 
-    db: Session = Depends(get_db),
-    current_user: Optional[User]= Depends(get_optional_user)
+   current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
 ):
     try:
         # Log user status (authenticated or anonymous)
@@ -37,6 +36,8 @@ async def process_payment(
             user_id = None
 
         # Create a charge using the Stripe API
+        if payment.currency.lower() == 'kes':
+            payment.amount = payment.amount * 100
         charge = stripe.Charge.create(
             amount=payment.amount,
             currency=payment.currency,
@@ -59,8 +60,8 @@ async def process_payment(
         db.refresh(transaction)
         
         invoice_data = {
-            'customer_name':current_user.full_name or payment.name ,
-            'customer_email': current_user.email or payment.email,
+            'customer_name': (current_user.full_name if current_user and current_user.full_name else payment.name),
+            'customer_email': (current_user.email if current_user and current_user.email else payment.email),
             'invoice_number': transaction.id,
             'issue_date': transaction.created_at,
             'due_date': transaction.created_at,

@@ -49,12 +49,6 @@ def create_refresh_token(data:dict, expires_delta: Optional[timedelta]=timedelta
     
     # utc_now = datetime.now(pytz.UTC)
     to_encode.update({"exp": expire})
-    # payload = {
-    #     # "sub": data.username,
-    #     "username": to_encode.username,
-    #     "id": to_encode.user_id,
-    #     "exp": utc_now + expires_delta,  # Expiration time adjusted by the delta
-    # }
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_token(token: str):
@@ -69,28 +63,7 @@ def decode_token(token: str):
             detail="Invalid token"
         ) from e
 
-# async def get_current_user(
-#     token: str = Depends(oauth2_scheme),
-#     db: Session = Depends(get_db)
-# ) -> models.User:
-#     """
-#     Get the current authenticated user
-#     """
-#     credentials_exception = HTTPException(
-#         status_code=status.HTTP_401_UNAUTHORIZED,
-#         detail="Could not validate credentials",
-#         headers={"WWW-Authenticate": "Bearer"},
-#     )
 
-#     email = decode_token(token).get("usernamne")
-#     if email is None:
-#         raise credentials_exception
-    
-#     user = db.query(models.User).filter(models.User.email == email).first()
-#     if user is None:
-#         raise credentials_exception
-    
-#     return user
 
 def verify_token(token: str, credentials_exception):
     """
@@ -127,6 +100,37 @@ async def get_current_user(
         raise credentials_exception
     
     return user
+
+# Get a user but optional 
+from fastapi.security.utils import get_authorization_scheme_param
+from fastapi import Request
+
+async def get_current_user_optional(
+    request: Request,  # Use Request to manually extract token
+    db: Session = Depends(get_db)
+) -> Optional[models.User]:
+    """
+    Get the current authenticated user, or None if not authenticated.
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return None  # No auth header means no authentication
+
+    scheme, token = get_authorization_scheme_param(auth_header)
+    
+    if not token or scheme.lower() != "bearer":
+        return None  # Malformed or missing token
+
+    try:
+        payload = decode_token(token)  # Decode the JWT
+        email: Optional[str] = payload.get("username")
+        if not email:
+            return None
+        return db.query(models.User).filter(models.User.email == email).first()
+    except JWTError:
+        return None  # Invalid or expired token
+
+
 
 async def get_current_active_user(
     current_user: models.User = Depends(get_current_user)
@@ -200,4 +204,14 @@ def verify_email_token(token: str) -> str:
         return None
     except jwt.JWTError as e:
         print("JWT error:", e)
+        return None
+
+def token_expiration(token:str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp_time = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        return exp_time
+    except jwt.JWTError:
+        return None
+    except jwt.ExpiredSignatureError:
         return None

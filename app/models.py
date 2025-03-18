@@ -148,6 +148,7 @@ class House(Base):
     title = Column(String, index=True)
     description = Column(String)
     price = Column(DECIMAL, nullable=False)
+    deposit= Column(DECIMAL, nullable=True, default=0)
     location = Column(String, index=True)
     image_urls = Column(ARRAY(String))
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))

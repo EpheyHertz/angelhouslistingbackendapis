@@ -2,13 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Verify Your Email - House Listing Platform</title>
+    <title>Verify Your Email - Comrade Homes</title>
     <style>
         body {
             font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-color: #f0f5ff;
         }
         .email-wrapper {
             max-width: 640px;
@@ -16,110 +16,162 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 30px rgba(26, 77, 168, 0.15);
         }
         .header {
-            background: linear-gradient(135deg, #0056b3 0%, #002c5f 100%);
+            background: linear-gradient(135deg, #1a4da8 0%, #0d2e6e 100%);
             padding: 40px;
             text-align: center;
             color: white;
+        }
+        .logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
         }
         .content {
             padding: 40px;
         }
         .verification-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 24px;
+            background: linear-gradient(to right, #f0f5ff, #e6eeff);
+            border-radius: 10px;
+            padding: 32px;
             margin: 32px 0;
             text-align: center;
+            border: 1px solid rgba(26, 77, 168, 0.1);
         }
         .cta-button {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: #28a745;
+            background: linear-gradient(to right, #1a4da8, #2c62c9);
             color: white!important;
             padding: 16px 40px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
             margin: 24px 0;
+            box-shadow: 0 6px 15px rgba(26, 77, 168, 0.25);
         }
         .cta-button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 77, 168, 0.3);
+        }
+        .cta-button::after {
+            content: '→';
+            margin-left: 5px;
+            font-weight: 700;
+            transition: margin 0.2s ease;
+        }
+        .cta-button:hover::after {
+            margin-left: 10px;
         }
         .link-box {
             background: #fff;
-            border: 2px dashed #dee2e6;
+            border: 2px dashed #1a4da8;
             padding: 16px;
             word-break: break-all;
             margin: 20px 0;
             font-family: monospace;
-            color: #2d3436;
+            color: #1a4da8;
+            border-radius: 8px;
         }
         .security-note {
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #6c757d;
+            color: #445566;
             margin: 20px 0;
+            justify-content: center;
+        }
+        .divider {
+            height: 4px;
+            background: linear-gradient(to right, #1a4da8, #4a7cdd, #1a4da8);
+            margin: 0 auto;
+            width: 70%;
+            border-radius: 2px;
+            opacity: 0.7;
         }
         .footer {
             text-align: center;
             padding: 32px;
-            background: #002c5f;
+            background: linear-gradient(135deg, #0d2e6e 0%, #1a4da8 100%);
             color: white;
+        }
+        @media (max-width: 640px) {
+            .email-wrapper {
+                margin: 10px;
+            }
+            .header, .content, .footer {
+                padding: 25px 20px;
+            }
+            .verification-card {
+                padding: 20px;
+            }
+            .cta-button {
+                padding: 14px 30px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="email-wrapper">
         <div class="header">
-            <h1 style="margin:0;font-size:28px;">🔑 Welcome to House Listing Platform!</h1>
-            <p style="opacity:0.9;margin-top:8px;">One last step to complete your registration</p>
+            <div class="logo-text">COMRADE HOMES</div>
+            <h1 style="margin:0;font-size:28px;">🏠 Welcome to Your Home Journey!</h1>
+            <p style="opacity:0.9;margin-top:8px;">One final step to unlock your property experience</p>
         </div>
 
         <div class="content">
-            <h2 style="margin:0 0 16px 0;">Hi, {{username}}!</h2>
-            <p style="font-size:16px;color:#666;">Thank you for joining our community of trusted property owners and seekers. Let's verify your email to get started:</p>
+            <h2 style="margin:0 0 16px 0;">Hello, {{username}}!</h2>
+            <p style="font-size:16px;color:#445566;">Thank you for joining Comrade Homes - your trusted partner in finding the perfect property. Please verify your email to activate your account:</p>
 
             <div class="verification-card">
-                <img src="https://img.icons8.com/color/96/verified-account.png" alt="Verification" style="width:64px;margin-bottom:16px;">
-                <h3 style="margin:0 0 16px 0;">Email Verification Required</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#1a4da8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h3 style="margin:16px 0;color:#1a4da8;">Email Verification Required</h3>
                 
                 <a href="{{ verification_url }}" class="cta-button">
-                    <img src="https://img.icons8.com/color/24/approval.png" alt="Verify" style="width:20px;">
-                    Verify Email Now
+                    Activate My Account
                 </a>
 
                 <div class="security-note">
-                    <img src="https://img.icons8.com/color/24/security-configuration.png" alt="Security" style="width:20px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#445566" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
                     <span>Secure verification process - expires in 24 hours</span>
                 </div>
             </div>
 
-            <p style="color:#666;">Can't click the button? Copy this link:</p>
+            <p style="color:#445566;">Can't click the button? Copy and paste this link into your browser:</p>
             <div class="link-box">
                 {{ verification_url }}
             </div>
 
-            <p style="color:#666;font-size:14px;">⚠️ If you didn't request this account, please <a href="mailto:epheynyaga@gmail.com" style="color:#0056b3;">contact our security team</a> immediately.</p>
+            <p style="color:#445566;font-size:14px;">⚠️ If you didn't request this account, please <a href="mailto:support@comradehomes.me" style="color:#1a4da8;font-weight:600;">contact our security team</a> immediately.</p>
         </div>
 
+        <div class="divider"></div>
+
         <div class="footer">
-            <p style="margin:0;font-size:14px;"> Angel House Listing Platform Team</p>
-            <p style="margin:8px 0;font-size:12px;opacity:0.9;">
-                📍 123 Property Lane, Suite 456<br>
-                📞 +254 700086852 | ✉️ <a href="mailto:support@houselisting.com" style="color:#fff;opacity:0.8;text-decoration:none;">support@angelhousing.com</a>
+            <p style="margin:0;font-size:14px;font-weight:600;">Comrade Homes Team</p>
+            <p style="margin:12px 0;font-size:12px;opacity:0.9;">
+                📍 Your trusted partner in finding the perfect home<br>
+                ✉️ <a href="mailto:support@comradehomes.me" style="color:#fff;opacity:0.8;text-decoration:none;">support@comradehomes.me</a>
             </p>
             <div style="margin-top:16px;">
-                <a href="https://angelhouslistingwebsite.vercel.app/privacy&policy" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Privacy Policy</a> 
+                <a href="https://www.comradehomes.me/privacy&policy" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Privacy Policy</a> 
+                | 
+                <a href="https://www.comradehomes.me/terms" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Terms of Service</a>
                 | 
                 <a href="{{unsubscribe_url}}" style="color:#fff;opacity:0.8;text-decoration:none;font-size:12px;">Unsubscribe</a>
             </div>
-            <p style="margin:16px 0 0 0;font-size:12px;opacity:0.7;">© 2025  Angel House Listing Platform. All rights reserved.</p>
+            <p style="margin:16px 0 0 0;font-size:12px;opacity:0.7;">© 2025 Comrade Homes. All rights reserved.</p>
         </div>
     </div>
 </body>

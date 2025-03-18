@@ -266,14 +266,15 @@ async def auth_google(
         # Generate access and refresh tokens
         access_token = oauth.create_access_token(data={"username": user.email, "user_id": user.id})
         refresh_token = oauth.create_refresh_token(data={"username": user.email, "user_id": user.id})
+        expires_in=oauth.token_expiration(access_token)
 
         # Construct the redirect URL
         if platform:
              redirect_url = mobile_config.get_mobile_redirect_url(platform, access_token, refresh_token, "bearer")
              logger.info(f"Redirecting to mobile app: {platform}")
-             return {'access_token':access_token,'refresh_token':refresh_token}
+             return {'access_token':access_token,'refresh_token':refresh_token,'expires_in':expires_in}
         else:             
-            redirect_url = f"{FRONTEND_URL}/auth/oauth?access_token={access_token}&refresh_token={refresh_token}&token_type=bearer"
+            redirect_url = f"{FRONTEND_URL}/auth/oauth?access_token={access_token}&refresh_token={refresh_token}&expires_in={expires_in}&token_type=bearer"
             logger.info("Redirecting to web frontend")
 
         
