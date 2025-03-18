@@ -7,10 +7,11 @@ from app.config import DATABASE_URL
 
 engine = create_engine(
     DATABASE_URL,
-    pool_size=5,         # Number of connections to keep open inside the pool
-    max_overflow=10,     # Extra connections if the pool is full
-    pool_timeout=30,     # Time (seconds) to wait before giving up
-    pool_recycle=1800,   # Refresh connections every 30 minutes
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
+    pool_pre_ping=True, 
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
