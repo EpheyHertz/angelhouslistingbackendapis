@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject }} | {{ app_name }}</title>
+    <style type="text/css">
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7fa;
+            color: #333333;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Main container */
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Header with gradient */
+        .email-header {
+            background: linear-gradient(135deg, #1c4d78 0%, #2A5C82 100%);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid #f0b941;
+        }
+        
+        .logo {
+            height: 60px;
+            width: auto;
+        }
+        
+        /* Content area */
+        .email-content {
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #1c4d78;
+            margin: 0 0 25px 0;
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 1.3;
+        }
+        
+        p {
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #444;
+        }
+        
+        /* Event details card */
+        .event-card {
+            background-color: #f8f9fb;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #2A5C82;
+        }
+        
+        .event-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .event-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .event-label {
+            width: 120px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .event-value {
+            flex: 1;
+            color: #333;
+            word-break: break-word;
+        }
+        
+        /* Priority notice */
+        .priority-notice {
+            background-color: #fff8e6;
+            border-left: 4px solid #f0b941;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .priority-notice p {
+            margin: 0;
+            color: #8c6d2e;
+            font-weight: 500;
+        }
+        
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            background-color: #2A5C82;
+            color: white;
+            padding: 14px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #f4f7fa;
+            padding: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .email-footer a {
+            color: #2A5C82;
+            text-decoration: none;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            display: inline-block;
+            margin: 0 8px;
+        }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .email-content, .email-header, .email-footer {
+                padding: 20px;
+            }
+            
+            .event-row {
+                flex-direction: column;
+            }
+            
+            .event-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body style="padding: 20px; font-family: 'Poppins', Arial, sans-serif; background-color: #f4f7fa;">
+    <div class="email-container">
+        <div class="email-header">
+            <div class="logo">
+                <img src="{{ logo_url }}" alt="{{ app_name }}" width="60">
+            </div>
+        </div>
+        
+        <div class="email-content">
+            <h1>{{ subject }}</h1>
+            
+            <p>Hello,</p>
+            
+            <p>A new <strong>{{ event_type }}</strong> event was received through your webhook system.</p>
+            
+            <div class="event-card">
+                {% for item in formatted_data %}
+                <div class="event-row">
+                    <div class="event-label">{{ item.label }}:</div>
+                    <div class="event-value">{{ item.value }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% if is_priority %}
+            <div class="priority-notice">
+                <p>⚠️ <strong>PRIORITY:</strong> This event requires your attention. Please review the details above.</p>
+            </div>
+            {% endif %}
+            
+            <p>Recommended actions:</p>
+            <ul style="margin-bottom: 20px; padding-left: 20px; color: #444;">
+                {% for action in recommended_actions %}
+                <li>{{ action }}</li>
+                {% endfor %}
+            </ul>
+            
+            <a href="{{ dashboard_url }}" class="cta-button">View in Dashboard</a>
+            
+            <p style="margin-top: 30px;">This is an automated notification sent to {{ recipient_email }}.</p>
+            
+            <p style="margin-bottom: 0;">Best regards,<br>The {{ app_name }} Team</p>
+        </div>
+        
+        <div class="email-footer">
+            <p>Need help? Contact our support team.<br>
+            <a href="mailto:{{ support_email }}">{{ support_email }}</a> | <a href="tel:{{ support_phone }}">{{ support_phone }}</a></p>
+            
+            <div class="social-links">
+                {% for social in social_links %}
+                <a href="{{ social.url }}" class="social-icon">
+                    <img src="{{ social.icon_url }}" alt="{{ social.name }}" width="24" height="24">
+                </a>
+                {% endfor %}
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 12px;">
+                © {{ current_year }} {{ app_name }}. All rights reserved.<br>
+                <a href="{{ app_url }}">{{ app_url }}</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

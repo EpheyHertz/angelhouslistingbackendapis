@@ -67,6 +67,7 @@ async def process_payment(
             'due_date': transaction.created_at,
             'service_description': transaction.description,
             'amount':transaction.amount,
+            'payment_by':transaction.transaction_type,
             'currency': transaction.currency,
             'stripe_url': 'https://comradehomes.me/',
             'mpesa_url': 'https://comradehomes.me/'

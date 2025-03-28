@@ -1,8 +1,9 @@
+from email.message import EmailMessage
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List
-from app.config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+from app.config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,PERSONAL_EMAIL
 from jinja2 import Environment, FileSystemLoader
 import jwt
 import os
@@ -10,8 +11,9 @@ import logging
 from datetime import datetime, timedelta
 from app.config import SECRET_KEY
 from typing  import Optional
-
+from fastapi import BackgroundTasks
 from app import models
+
 env = Environment(loader=FileSystemLoader('app/templates'))
 
 def send_email(to_email: str, subject: str, template_name: str, **template_vars):
@@ -294,8 +296,8 @@ def send_appeal_confirmation_email_to_booking_house_owner(to_email:str,subject:s
                **template_vars)                    
 
 
-async def send_house_notification_email(admin_emails, owner_email, owner_username, **template_vars):
-    print(template_vars)
+def send_house_notification_email(admin_emails, owner_email, owner_username, **template_vars):
+    # print(template_vars)
     """
     Sends an email with house details to the owner and all admins.
     
@@ -329,3 +331,85 @@ async def send_house_notification_email(admin_emails, owner_email, owner_usernam
 
     except Exception as e:
         print(f"Error sending house notification emails: {str(e)}")
+
+
+
+def send_booking_completion_email(booking: models.Booking, background_tasks: BackgroundTasks = None):
+    """Send email notification when a booking is marked as completed"""
+    email_context = {
+        "booking_owner_username": booking.user.username or booking.user.full_name,
+        "house_title": booking.house.title,
+        "house_owner_name": booking.house.owner.full_name or booking.house.owner.username,
+        "start_date": booking.start_date.strftime("%B %d, %Y"),
+        "end_date": booking.end_date.strftime("%B %d, %Y"),
+        "booking_id": str(booking.id),
+        "review_deadline": (datetime.now() + timedelta(days=14)).strftime("%B %d, %Y")
+    }
+
+    # Use your existing send_email function
+    email_task = send_email(
+        to_email=booking.user.email,
+        subject=f"Your Stay at {booking.house.title} Has Been Completed",
+        template_name="booking_completed.html",
+        **email_context
+    )
+    
+    if background_tasks:
+        background_tasks.add_task(email_task)
+    else:
+        email_task
+
+async def send_booking_expiration_email(booking: models.Booking, background_tasks: BackgroundTasks = None):
+    """Send email notification when a pending booking has expired"""
+    email_context = {
+        "booking_owner_username": booking.user.username or booking.user.full_name,
+        "house_title": booking.house.title,
+        "house_owner_name": booking.house.owner.full_name or booking.house.owner.username,
+        "start_date": booking.start_date.strftime("%B %d, %Y"),
+        "end_date": booking.end_date.strftime("%B %d, %Y"),
+        "booking_id": str(booking.id),
+        "expiration_date": datetime.now().strftime("%B %d, %Y")
+    }
+
+    # Use your existing send_email function
+    email_task = send_email(
+        to_email=booking.user.email,
+        subject=f"Your Booking Request for {booking.house.title} Has Expired",
+        template_name="booking_expired.html",
+        **email_context
+    )
+    
+    if background_tasks:
+        background_tasks.add_task(email_task)
+    else:
+        email_task
+
+
+def send_webhook_email(event_type: str, event_data: dict):
+    # Set up template environment
+   
+    
+    # Prepare data
+    formatted_data = [{'label': key.replace('_', ' ').title(), 'value': str(value)} 
+                     for key, value in event_data.items()]
+    
+    # Render HTML
+    send_email(
+        subject=f"Webhook Notification: {event_type}",
+        app_name="Comrade Homes",
+        logo_url="https://www.comradehomes.me/favicon.ico",
+        event_type=event_type,
+        formatted_data=formatted_data,
+        is_priority=event_type,
+        recommended_actions=event_type,
+        dashboard_url="https://comradehomes.me/dashboard",
+        to_email=PERSONAL_EMAIL,
+        template_name="webhook_notification.html",
+        support_phone="+254 705423479",
+        social_links=[
+            {'name': 'Twitter', 'url': 'https://twitter.com/yourapp', 'icon_url': 'https://...'},
+            {'name': 'Facebook', 'url': 'https://facebook.com/yourapp', 'icon_url': 'https://...'}
+        ],
+        current_year=datetime.now().year,
+        app_url="https://comradehomes.me"
+    )

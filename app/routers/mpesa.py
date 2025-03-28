@@ -271,6 +271,7 @@ async def payment_callback(
                         'due_date': transaction.created_at,
                         'service_description': transaction.description,
                         'amount': transaction.amount,
+                        'payment_by':transaction.transaction_type,
                         'currency': transaction.currency,
                         'mpesa_url': 'https://comradehomes.me/',
                         'stripe_url': 'https://comradehomes.me/',

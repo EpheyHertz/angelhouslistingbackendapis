@@ -439,7 +439,7 @@ from datetime import datetime
 
 class HouseCreateUpdated(BaseModel):
     title: str = Field(..., description="The title of the house listing", min_length=5, max_length=100)
-    description: str = Field(..., description="A brief description of the house", min_length=20)
+    description: str = Field(..., description="A brief description of the house", min_length=3)
     price: str = Field(..., description="The price of the house")
     deposit: str = Field(..., description="The refundable deposit of the house")
     location: str = Field(..., description="The location of the house", min_length=3)
@@ -571,3 +571,41 @@ class HouseCreateUpdated(BaseModel):
                 "sale_type": "rent"
             }
         }
+
+
+
+
+
+class BillingAddress(BaseModel):
+    street: str
+    city: str
+    state: str
+    postalCode: str
+
+class PayPalOrderCreateRequest(BaseModel):
+    amount: float
+    currency: str
+    description: str
+    name: str
+    email: str
+    billing_address: Optional[BillingAddress] = None
+
+class PayPalOrderCreateResponse(BaseModel):
+    status: str
+    order_id: str
+    approval_url: str
+    transaction_id: int
+    ec_token: str
+
+class PayPalOrderCaptureRequest(BaseModel):
+    order_id: str
+    payer_id: str
+    email: str
+    payment_id: str
+
+class PayPalOrderCaptureResponse(BaseModel):
+    status: str
+    capture_id: str
+    transaction_id: int
+    amount: float
+    currency: str

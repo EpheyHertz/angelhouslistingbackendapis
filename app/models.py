@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey, DateTime, ARRAY, Float,DECIMAL
+from sqlalchemy import JSON, Column, Integer, String, Boolean, Enum, ForeignKey, DateTime, ARRAY, Float,DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.schema import ForeignKeyConstraint
@@ -18,6 +18,7 @@ class BookingStatus(str, enum.Enum):
     PENDING = "pending"
     APPROVED = "approved"
     CANCELED = "canceled"
+    COMPLETED="completed"
 
 
 class VerificationStatus(str, enum.Enum):
@@ -56,6 +57,7 @@ class HouseStatus(str, enum.Enum):
     on_sale = "on_sale"
     sold = "sold"
     booked = "booked"
+    full='full'
 
 class TransactionStatus(enum.Enum):  # Don't subclass str, just use enum.Enum
     PENDING = "Pending"
@@ -78,6 +80,7 @@ class Transaction(Base):
     status = Column(Enum(TransactionStatus), nullable=False, default=TransactionStatus.PENDING)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    payment_metadata = Column(JSON, default={})
 
     # Relationships
     house = relationship("House", back_populates="transactions")

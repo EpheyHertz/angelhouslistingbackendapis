@@ -2,11 +2,16 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, FastAPI, Depends
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db, SessionLocal
-from app.models import Booking
-from app.services.email import send_booking_email_to_owner, send_booking_email_to_booker
+from app.models import Booking, BookingStatus
+from app.services.email import (
+    send_booking_completion_email, 
+    send_booking_email_to_owner, 
+    send_booking_email_to_booker, 
+    send_booking_expiration_email
+)
 from contextlib import asynccontextmanager
 import logging
 from typing import List
@@ -27,11 +32,19 @@ EXECUTION_STATS = {
     "last_run": None,
     "total_runs": 0,
     "total_bookings_processed": 0,
-    "total_emails_sent": 0
+    "total_emails_sent": 0,
+    "past_bookings_last_run": None,
+    "past_bookings_processed": 0,
+    "past_bookings_completed": 0,
+    "past_bookings_expired": 0
 }
 
-# Create the router
-router = APIRouter(prefix="/workflows", tags=["Automatic Workflows"])
+# Create the router with unique operation IDs
+router = APIRouter(
+    prefix="/workflows",
+    tags=["Automatic Workflows"],
+    responses={404: {"description": "Not found"}}
+)
 
 # Set up scheduler
 scheduler = AsyncIOScheduler()
@@ -42,18 +55,25 @@ async def lifespan(app: FastAPI):
     # Start scheduler on app startup
     scheduler.start()
     logger.info("Scheduler started at: %s", datetime.now())
-    print("Scheduler started at: ", datetime.now())
-    # Add job for booking reminders
-    job = scheduler.add_job(
+    
+    # Add job for booking reminders (runs daily at 9:00 AM)
+    reminder_job = scheduler.add_job(
         check_upcoming_bookings,
-        CronTrigger(hour=9,minute=0),  # Run at 9:00 AM every day
+        CronTrigger(hour=9, minute=0),
         id="booking_reminder_daily",
         replace_existing=True
     )
     
-    # Log job information
-    next_run = job.next_run_time
-    logger.info("Booking reminder job scheduled. Next run: %s", next_run)
+    # Add job for processing past bookings (runs daily at 3:00 AM)
+    past_bookings_job = scheduler.add_job(
+        process_past_bookings_job,
+        CronTrigger(hour=3, minute=0),
+        id="past_bookings_processing",
+        replace_existing=True
+    )
+    
+    logger.info("Booking reminder job scheduled. Next run: %s", reminder_job.next_run_time)
+    logger.info("Past bookings job scheduled. Next run: %s", past_bookings_job.next_run_time)
     
     yield
     
@@ -61,35 +81,91 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
     logger.info("Scheduler stopped at: %s", datetime.now())
 
-# Create a function to set up the scheduler with an app
-def setup_scheduler(app: FastAPI):
-    # Attach the lifespan to the app
-    app.lifespan = lifespan
+async def process_past_bookings_job():
+    """Wrapper job for processing past bookings"""
+    start_time = datetime.now()
+    EXECUTION_STATS["past_bookings_last_run"] = start_time
     
-    # Include the router in the app
-    app.include_router(router)
-    
-    logger.info("Scheduler setup completed for the application")
-    return app
+    try:
+        db = SessionLocal()
+        try:
+            result = await process_past_bookings(db)
+            EXECUTION_STATS["past_bookings_processed"] += result["processed"]
+            EXECUTION_STATS["past_bookings_completed"] += result["completed"]
+            EXECUTION_STATS["past_bookings_expired"] += result["expired"]
+            
+            logger.info(
+                "Processed past bookings in %s seconds: %s completed, %s expired",
+                (datetime.now() - start_time).total_seconds(),
+                result["completed"],
+                result["expired"]
+            )
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Error in past bookings processing job: {str(e)}", exc_info=True)
 
-@router.get("/scheduler-status")
-async def scheduler_status():
-    """Endpoint to check scheduler status and next run times"""
-    jobs = []
-    for job in scheduler.get_jobs():
-        jobs.append({
-            "id": job.id,
-            "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
-            "function": job.func.__name__,
-            "trigger": str(job.trigger)
-        })
+async def process_past_bookings(db: AsyncSession):
+    """Main function to process past bookings"""
+    now = datetime.now()
+    cutoff_time = now - timedelta(hours=24)  # Process bookings that ended at least 24 hours ago
     
-    return {
-        "scheduler_running": scheduler.running,
-        "jobs": jobs,
-        "current_time": datetime.now().isoformat(),
-        "execution_stats": EXECUTION_STATS
+    # Get all bookings that have ended but haven't been marked completed/expired
+    result =db.execute(
+        select(Booking).where(
+            and_(
+                Booking.end_date < cutoff_time,
+                Booking.status.in_([BookingStatus.APPROVED, BookingStatus.PENDING])
+            )
+        )
+    )
+    bookings = result.scalars().all()
+    
+    if not bookings:
+        logger.info("No past bookings found needing processing")
+        return {"processed": 0, "completed": 0, "expired": 0}
+    
+    completed_count = 0
+    expired_count = 0
+    
+    for booking in bookings:
+        if booking.status == BookingStatus.APPROVED:
+            # Mark approved bookings as completed
+            db.execute(
+                update(Booking)
+                .where(Booking.id == booking.id)
+                .values(status=BookingStatus.COMPLETED)
+            )
+            completed_count += 1
+            logger.info(f"Marked booking {booking.id} as COMPLETED")
+            
+            # Send completion notification
+            send_booking_completion_email(booking)
+            
+        elif booking.status == BookingStatus.PENDING:
+            # Mark pending bookings as expired
+            db.execute(
+                update(Booking)
+                .where(Booking.id == booking.id)
+                .values(status=BookingStatus.EXPIRED)
+            )
+            expired_count += 1
+            logger.info(f"Marked booking {booking.id} as EXPIRED")
+            
+            # Send expiration notification
+            send_booking_expiration_email(booking)
+    
+    await db.commit()
+    
+    stats = {
+        "processed": len(bookings),
+        "completed": completed_count,
+        "expired": expired_count,
+        "timestamp": now.isoformat()
     }
+    
+    logger.info(f"Processed {len(bookings)} past bookings: {stats}")
+    return stats
 
 async def check_upcoming_bookings():
     """Main task to check for upcoming bookings and send reminders"""
@@ -101,7 +177,6 @@ async def check_upcoming_bookings():
                 EXECUTION_STATS["total_runs"], start_time)
     
     try:
-        # Create a new session for this task
         db = SessionLocal()
         try:
             # Get bookings that need reminders
@@ -213,8 +288,49 @@ async def send_reminder_emails(booking: Booking, days_remaining: int):
     except Exception as e:
         logger.error(f"Failed to send reminders for booking {booking.id}: {str(e)}", exc_info=True)
         return False
+
+# Create a function to set up the scheduler with an app
+def setup_scheduler(app: FastAPI):
+    # Attach the lifespan to the app
+    app.lifespan = lifespan
     
-async def call_trigger_reminders():
+    # Include the router in the app
+    app.include_router(router)
+    
+    logger.info("Scheduler setup completed for the application")
+    return app
+
+@router.get(
+    "/scheduler-status",
+    operation_id="get_scheduler_status",
+    summary="Get scheduler status",
+    description="Returns current scheduler status and execution statistics"
+)
+async def scheduler_status():
+    """Endpoint to check scheduler status and next run times"""
+    jobs = []
+    for job in scheduler.get_jobs():
+        jobs.append({
+            "id": job.id,
+            "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
+            "function": job.func.__name__,
+            "trigger": str(job.trigger)
+        })
+    
+    return {
+        "scheduler_running": scheduler.running,
+        "jobs": jobs,
+        "current_time": datetime.now().isoformat(),
+        "execution_stats": EXECUTION_STATS
+    }
+
+@router.post(
+    "/trigger-reminders",
+    operation_id="trigger_booking_reminders",
+    summary="Trigger booking reminders",
+    description="Manually triggers the booking reminder job"
+)
+async def trigger_reminders():
     """Manually trigger the booking reminder job"""
     try:
         await check_upcoming_bookings()
@@ -223,14 +339,16 @@ async def call_trigger_reminders():
         logger.error(f"Error in manual reminder trigger: {str(e)}", exc_info=True)
         return {"status": "error", "message": str(e)}
 
-
-
-@router.post("/trigger-reminders")
-async def trigger_reminders():
-    """Manually trigger the booking reminder job"""
+@router.post(
+    "/process-past-bookings",
+    operation_id="process_past_bookings",
+    summary="Process past bookings",
+    description="Manually triggers processing of completed/expired bookings"
+)
+async def trigger_past_bookings_processing(db: AsyncSession = Depends(get_db)):
+    """Endpoint to manually trigger past bookings processing"""
     try:
-        await check_upcoming_bookings()
-        return {"status": "success", "message": "Booking reminders check completed"}
+        result = await process_past_bookings(db)
+        return {"status": "success", "data": result}
     except Exception as e:
-        logger.error(f"Error in manual reminder trigger: {str(e)}", exc_info=True)
         return {"status": "error", "message": str(e)}

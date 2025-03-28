@@ -116,6 +116,14 @@ EMAIL_TEMPLATE = Template('''<!DOCTYPE html>
                         <a href="{{ mpesa_url }}" class="payment-button">Pay with M-Pesa</a>
                     </div>
                 </div>
+                <div class="payment-option">
+                    <img src="https://comradehomes.me/paypal-logo.png" alt="M-Pesa">
+                    <div>
+                        <strong>PayPal Payment</strong>
+                        <p>Instant Credit card  payments</p>
+                        <a href="{{ mpesa_url }}" class="payment-button">Pay credit card</a>
+                    </div>
+                </div>
             </div>
 
             <div class="download-invoice">
@@ -187,8 +195,13 @@ def create_invoice_pdf(invoice_data, file_path):
     
     # Add company header
     # If you have a logo file, uncomment and update the path:
-    # logo = Image('path/to/logo.png', width=2*inch, height=1*inch)
-    # elements.append(logo)
+    try:
+        logo = Image('https://www.comradehomes.me/favicon.ico',
+                    width=2*inch,
+                    height=1*inch)
+        elements.append(logo)
+    except:
+        elements.append(Paragraph("Comrade Homes", styles['Title']))
     
     elements.append(Paragraph("COMRADE HOMES", styles['CenterAlign']))
     elements.append(Paragraph("INVOICE", styles['CenterAlign']))
@@ -216,6 +229,8 @@ def create_invoice_pdf(invoice_data, file_path):
     elements.append(Paragraph("Bill To:", styles['InvoiceHeading']))
     elements.append(Paragraph(f"Name: {invoice_data['customer_name']}", styles['Normal']))
     elements.append(Paragraph(f"Email: {invoice_data['customer_email']}", styles['Normal']))
+    elements.append(Paragraph(f"Billed Through: {invoice_data['payment_by']}", styles['Normal']))
+    
     elements.append(Spacer(1, 0.25*inch))
     
     # Invoice items
@@ -250,6 +265,7 @@ def create_invoice_pdf(invoice_data, file_path):
     if invoice_data.get('payment_status') == 'PAID':
         elements.append(Paragraph("Payment Information", styles['InvoiceHeading']))
         elements.append(Paragraph(f"Payment Date: {invoice_data.get('payment_date', datetime.now().strftime('%Y-%m-%d'))}", styles['Normal']))
+        elements.append(Paragraph(f"Payment Type: {invoice_data['payment_by']}", styles['Normal']))
         elements.append(Paragraph("Thank you for your payment!", styles['Normal']))
         elements.append(Spacer(1, 0.25*inch))
     
@@ -342,6 +358,7 @@ def handle_successful_payment(payment_data):
         'service_description': payment_data['service_description'],
         'currency': payment_data['currency'],
         'amount': payment_data['amount'],
+        'payment_by': payment_data['payment_by'],
         'payment_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     

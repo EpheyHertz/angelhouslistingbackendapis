@@ -20,7 +20,7 @@ from ..services.oauth import get_current_user,get_current_admin
 from sqlalchemy.exc import SQLAlchemyError
 from typing import Dict, Any
 from qstash import AsyncQStash
-from app.routers.workflows import call_trigger_reminders
+# from app.routers.workflows import call_trigger_reminders
 
 
 
@@ -650,18 +650,8 @@ async def approve_booking(
         },
     ]
 
-    # for data in notification_data:
-    #     send_booking_approved_email(**data)
 
-    # db.commit()
-
-    # 🚀 **Trigger Reminder Workflow via QStash**
-    current_date = datetime.now().date()
-    booking_start_date = booking.start_date.date()
-
-    # **Ensure reminders are only sent if the booking date is in the future**
-    if booking_start_date > current_date:
-         await call_trigger_reminders()
+   
     return booking
 
 
