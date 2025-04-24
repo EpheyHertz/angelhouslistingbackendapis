@@ -23,7 +23,7 @@ router = APIRouter(
     tags=["Users"],
 )
 logger = logging.getLogger(__name__)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login",description="Login to Comrade Homes API withg your email and password")
 
 
 

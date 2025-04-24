@@ -10,7 +10,7 @@ from .config import SENDLK_TOKEN,SECRET_KEY
 sendlk.initialize(SENDLK_TOKEN, SECRET_KEY)
 # models.Base.metadata.create_all(bind=engine)
 from app.routers.workflows import lifespan
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="Comrade Homes API", version="1.0.0")
 from app.routers import auth, social_auth, house,mpesa, reviews, admin,tokens,booking,code,workflows,stripe_payments,invoice_downloading,paypal,webhooks
 serve = Serve(app)
 from app.routers.workflows import setup_scheduler
@@ -37,7 +37,7 @@ async def favicon():
 
 @app.get("/", tags=["Welcome"])
 def read_root():
-    return {"message": "Welcome to the House Listing API"}
+    return {"message": "Welcome to Comrade Homes API"}
 
 app.include_router(auth.router)
 app.include_router(social_auth.router)

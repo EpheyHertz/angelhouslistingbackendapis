@@ -3,7 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List
-from app.config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,PERSONAL_EMAIL
+from app.config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD,BREVO_EMAIL_HOST, BREVO_EMAIL_PORT, BREVO_EMAIL_USE_TLS, BREVO_EMAIL_PASSWORD, PERSONAL_EMAIL,BREVO_EMAIL_HOST_USER
 from jinja2 import Environment, FileSystemLoader
 import jwt
 import os
@@ -13,6 +13,7 @@ from app.config import SECRET_KEY
 from typing  import Optional
 from fastapi import BackgroundTasks
 from app import models
+from email.utils import formataddr
 
 env = Environment(loader=FileSystemLoader('app/templates'))
 
@@ -27,7 +28,7 @@ def send_email(to_email: str, subject: str, template_name: str, **template_vars)
     # Create message
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
-    msg['From'] = SMTP_USER
+    msg['From'] = formataddr(("Comrade Homes", "support@comradehomes.me"))
     msg['To'] = to_email
 
     # Add HTML content
@@ -36,9 +37,10 @@ def send_email(to_email: str, subject: str, template_name: str, **template_vars)
 
     # Send email
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        print(f"Email_Host: {BREVO_EMAIL_HOST}, Email_Port: {BREVO_EMAIL_PORT}, Email_User: {BREVO_EMAIL_HOST_USER},EmailHost_Password: {BREVO_EMAIL_PASSWORD}")
+        with smtplib.SMTP(BREVO_EMAIL_HOST, BREVO_EMAIL_PORT) as server:
             server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.login(BREVO_EMAIL_HOST_USER, BREVO_EMAIL_PASSWORD)
             server.send_message(msg)
     except Exception as e:
         print(f"Failed to send email: {str(e)}")
@@ -70,9 +72,9 @@ def send_bulk_email(
     
     try:
         # Set up the SMTP server and login
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        with smtplib.SMTP(BREVO_EMAIL_HOST, BREVO_EMAIL_PORT) as server:
             server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
+            server.login(BREVO_EMAIL_HOST_USER, BREVO_EMAIL_PASSWORD)
 
             # Sending emails in batches
             for i in range(0, len(to_emails), batch_size):
@@ -85,7 +87,7 @@ def send_bulk_email(
                         # Create the email message
                         msg = MIMEMultipart('alternative')
                         msg['Subject'] = subject  # Add subject here directly
-                        msg['From'] = SMTP_USER
+                        msg['From'] = formataddr(("Comrade Homes", "support@comradehomes.me"))
                         msg['To'] = email
 
                         # Attach the HTML content

@@ -12,7 +12,7 @@ import pytz
 
 
 # OAuth2 configuration
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login",description="Login to Comrade Homes API withg your email and password")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 960
 
